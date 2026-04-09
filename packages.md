@@ -50,11 +50,23 @@ Never discount. Always raise with each stage.
 
 | Tier | Price | Includes |
 |------|-------|----------|
-| **Basic** | 49 PLN/month | Hosting management, SSL monitoring, uptime monitoring |
-| **Standard** | 99 PLN/month | Basic + 1 content update/month (text, photo, price change) |
-| **Pro** | 199 PLN/month | Standard + priority 24h response, SEO tweaks, monthly report |
+| **Basic** | 49 PLN/month | Hosting on Netlify (your account), SSL auto-renewal, uptime monitoring. Site stays live, you never think about it. |
+| **Standard** | 99 PLN/month | Basic + 1 content change/month via update form — processed within 15 minutes. Phone number, holiday notice, new service, swap photo. |
+| **Pro** | 199 PLN/month | Standard + priority 24h response, SEO tweaks (meta, Search Console), monthly performance report, quarterly AI Content Refresh (AI reviews site and proposes text updates — one click for us, living site for client). |
 
-Maintenance = recurring revenue. After 50 clients at 99 PLN avg = 4,950 PLN/month with zero delivery work.
+**Standard "15 minutes" is the killer feature** — no competitor (freelancer or agency) can match this manually. It's only possible because changes go through OpenClaw automation on your infrastructure.
+
+Maintenance = recurring revenue. After 50 clients at 99 PLN avg = 4,950 PLN/month with near-zero work.
+
+---
+
+## Hosting Policy
+
+Sites are hosted on your Netlify account. This is non-negotiable for standard packages — the automation (OpenClaw, AI content refresh, instant updates) only works on your infrastructure.
+
+**If a client wants the code:** charge a Code Export Fee (1,500–2,500 PLN one-time) + include in contract: zero support, zero automation, zero guarantees on their server environment. Frame it as: *"My technology works in my ecosystem. On your server, the 15-minute update feature stops working."*
+
+Most clients won't push back once they understand they're buying a service, not a file.
 
 ---
 
