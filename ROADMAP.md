@@ -211,6 +211,9 @@ Why it matters: manual SEO per site takes 30–45 min. Automated: 0 min. Small t
 *Target: 20–50+ sites/year. Goal: AI does 70% of the work, you supervise.*
 
 ### JSON config architecture
+*Design constraints (apply when building, not before):*
+*— Schema defines intent, not style: `"importance": "primary"` not `"color": "#3B82F6"`. Template handles the visual.*
+*— Avoid the Inner Platform Effect: if the schema grows complex enough to reinvent HTML/CSS inside JSON, it's too complex. Keep structure lean, style via CSS variables only.*
 Current: one HTML file per client with `{{VARIABLES}}` replaced.
 Future: one template + one `config/kowalski.json` per client.
 
