@@ -72,6 +72,68 @@ Low urgency — token was briefly visible in local bash_profile, not exposed pub
 
 ---
 
+## Mid-term — Level 3.5 (Lead Capture Automation)
+*Trigger: when manual scraper + email response becomes a daily chore (5+ leads/week)*
+
+### Inbound lead flow — Phase 2 architecture
+The OneViz website 3-field form (email + phone + business name/city + optional URL) triggers this pipeline:
+
+```
+Lead submits form
+    ↓
+Netlify Function ("the waiter")
+    → stores lead in Airtable
+    → sends instant confirmation email: "Sprawdź skrzynkę za kilka minut"
+    → if URL: sends job to OpenClaw via Cloudflare Tunnel
+    → if no URL: sends "we'll call you" email, flags for manual follow-up
+    ↓
+OpenClaw worker ("the cook") — polls every 10s
+    → runs quality gate (content length check)
+    → runs scrape.js
+    → checks confidence score
+    → HIGH (80+): sends demo email automatically via Resend
+    → MED (50-79): sends demo email + flags for your review
+    → LOW (<50): skips send, notifies you on WhatsApp: "lead came in, scraper failed, worth manual"
+```
+
+**Job queue** — simple JSON files in `scraper/jobs/`:
+```
+job-{timestamp}.json → { status: "pending|processing|done|failed", lead: {...}, result: {...} }
+```
+Restart-safe, debuggable, no database needed at this volume.
+
+**Email service:** Resend (resend.com) — free tier 100 emails/day, simple API, good deliverability.
+
+**Cloudflare Tunnel:** exposes OpenClaw endpoint publicly without a static IP. Free. Alternative: small Hetzner VPS (€4/month) if scraping gets blocked.
+
+### Lead form fields (OneViz website)
+5 fields — richer than 3, handles URL failure gracefully:
+1. Email (required)
+2. Phone (required)
+3. Business name (required) — fallback for Google enrichment when URL fails
+4. City (required) — fallback
+5. Existing website URL (optional)
+
+### Email templates
+
+**Email 1 — Instant (sent immediately on form submit):**
+> Temat: Pracujemy nad podglądem Twojej strony
+> Przygotowujemy wstępny projekt — sprawdź skrzynkę za kilka minut.
+> W razie pytań zadzwoń: [your number]
+
+**Email 2 — Demo (sent when scraper succeeds):**
+> Temat: [Business Name] — podgląd nowej strony
+> Odbudowaliśmy Twoją stronę w ~3 minuty.
+> 👉 Podgląd: [link]
+> Co poprawiliśmy: [bullet issues from scraper]
+> Jeśli chcesz, wdrożymy to w tym tygodniu. Zadzwoń: [your number]
+
+**Email 3 — Fallback (sent when scraper fails or no URL):**
+> Temat: Przygotowujemy coś dla Ciebie
+> Przygotowujemy indywidualny projekt — zadzwonię w ciągu 24h, żeby omówić szczegóły.
+
+---
+
 ## Mid-term — Level 4 (Productized Agency)
 *Target: 5–20 clients. Goal: cut delivery time from 3–5h to under 1h per site.*
 

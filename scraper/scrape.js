@@ -103,65 +103,89 @@ function apiPut(url, headers, rawBuffer) {
   }, rawBuffer);
 }
 
-// ── Step 1: Fetch target site HTML ────────────────────────────────────────────
+// ── Step 1: Fetch + quality gate ─────────────────────────────────────────────
+
+const MIN_CONTENT_LENGTH = 800; // below this = JS-rendered or empty shell
 
 async function fetchSite(url) {
   console.log(`\n[1/5] Fetching ${url} ...`);
   const res = await request(url);
   if (res.status !== 200) throw new Error(`Fetch failed: HTTP ${res.status}`);
-  console.log(`      Got ${res.body.length} bytes`);
+
+  const len = res.body.length;
+  console.log(`      Got ${len} bytes`);
+
+  if (len < MIN_CONTENT_LENGTH) {
+    throw new Error(
+      `LOW_CONTENT: only ${len} bytes — likely JS-rendered (Wix/Squarespace) or empty. ` +
+      `Run manually with business name + city instead.`
+    );
+  }
+
   // Trim to ~8000 chars to stay within Claude context and reduce cost
   return res.body.slice(0, 8000);
 }
 
 // ── Step 2: Claude API — extract business data ────────────────────────────────
 
-const EXTRACTION_PROMPT = `You are extracting business data from a website's HTML to fill a template.
+const EXTRACTION_PROMPT = `You are a Senior Direct-Response Copywriter and UX Designer specializing in Polish local businesses.
+Your task: transform raw, often messy data from an existing business website into modern, conversion-focused content for a one-page website.
 
-Return ONLY a valid JSON object with these keys (use empty string "" if not found):
+RULES — apply to every field:
+- Zero fluff: remove "serdecznie zapraszamy", "jesteśmy liderem", "wysoka jakość", "profesjonalne podejście" — replace with specifics
+- Polish market context: local SMB clients trust years of experience, concrete results, and location
+- Transform vague into concrete: "Robimy dachy" → "Solidny dach na 30 lat. Gwarancja i terminowość w {city}"
+- If you find "15 lat doświadczenia" — make it the hero headline, not a footnote
+- Short sentences. Active voice. Benefit-first.
+- All output text in Polish unless a field is a URL or number
+
+Return ONLY a valid JSON object with these keys (use empty string "" if not found or cannot be inferred):
 
 {
   "FULL_NAME": "owner's full name or business name",
-  "TITLE": "job title or role (1 short line, Polish OK)",
-  "TAGLINE": "main value proposition (max 10 words, Polish OK)",
-  "CITY": "city name",
-  "PHONE": "phone number in tel: format, e.g. +48123456789",
+  "TITLE": "job title — short, specific (e.g. 'Doradca kredytowy', not 'Specjalista')",
+  "TAGLINE": "hero headline — max 8 words, concrete benefit, location if relevant",
+  "CITY": "city name only",
+  "PHONE": "phone in tel: format e.g. +48123456789",
   "EMAIL": "email address",
   "PHOTO_URL": "",
-  "BIO_SHORT": "1-2 sentence intro (Polish OK)",
-  "BIO_LONG": "2-3 sentences about background and expertise (Polish OK)",
+  "BIO_SHORT": "1 punchy sentence — who they are and what makes them worth calling",
+  "BIO_LONG": "2-3 sentences — background, specialization, who they help. No fluff.",
   "EXPERIENCE_YEARS": "number only, or empty",
-  "CLIENTS_COUNT": "number + unit like '200+' or empty",
-  "SERVICE_1_TITLE": "first service name",
-  "SERVICE_1_DESC": "1-2 sentences describing service 1",
-  "SERVICE_2_TITLE": "second service name",
-  "SERVICE_2_DESC": "1-2 sentences describing service 2",
-  "SERVICE_3_TITLE": "third service name",
-  "SERVICE_3_DESC": "1-2 sentences describing service 3",
-  "WHY_1_TITLE": "differentiator 1 title",
-  "WHY_1_DESC": "1-2 sentences",
-  "WHY_2_TITLE": "differentiator 2 title",
+  "CLIENTS_COUNT": "number + unit e.g. '200+', or empty",
+  "SERVICE_1_TITLE": "service name — verb + noun e.g. 'Kredyty hipoteczne'",
+  "SERVICE_1_DESC": "1-2 sentences — who it's for and what result they get",
+  "SERVICE_2_TITLE": "service name",
+  "SERVICE_2_DESC": "1-2 sentences",
+  "SERVICE_3_TITLE": "service name",
+  "SERVICE_3_DESC": "1-2 sentences",
+  "WHY_1_TITLE": "differentiator — specific, not generic (avoid 'Doświadczenie')",
+  "WHY_1_DESC": "1-2 sentences expanding the differentiator with proof or detail",
+  "WHY_2_TITLE": "differentiator",
   "WHY_2_DESC": "1-2 sentences",
-  "WHY_3_TITLE": "differentiator 3 title",
+  "WHY_3_TITLE": "differentiator",
   "WHY_3_DESC": "1-2 sentences",
-  "REVIEW_1_TEXT": "first testimonial quote or empty",
-  "REVIEW_1_AUTHOR": "author name and title or empty",
-  "REVIEW_2_TEXT": "second testimonial quote or empty",
-  "REVIEW_2_AUTHOR": "author name and title or empty",
+  "REVIEW_1_TEXT": "testimonial quote — keep authentic, trim filler words",
+  "REVIEW_1_AUTHOR": "First name + role/context e.g. 'Marek K., właściciel firmy'",
+  "REVIEW_2_TEXT": "testimonial quote or empty",
+  "REVIEW_2_AUTHOR": "author or empty",
   "CTA_PRIMARY": "Zadzwoń",
   "CTA_SECONDARY": "Zobacz ofertę",
   "LINKEDIN_URL": "",
   "FACEBOOK_URL": "",
   "INSTAGRAM_URL": "",
   "WHATSAPP_NUMBER": "",
-  "GOOGLE_MAPS_EMBED": ""
+  "GOOGLE_MAPS_EMBED": "",
+  "_issues": ["max 4 specific problems found on the original site — used in cold outreach email"],
+  "_confidence": 0
 }
 
-Also return a separate key "_issues" with an array of strings listing problems found on the original site (max 4 items). These will be used in a cold email.
+For _confidence (0–100): estimate how much usable business content was in the HTML.
+- 80–100: rich content, most fields filled, ready to send
+- 50–79: partial content, key fields present but gaps exist — review before sending
+- 0–49: thin content (JS shell, Wix placeholder, almost no text) — manual enrichment needed
 
-Example _issues: ["Brak numeru telefonu w widocznym miejscu", "Strona nie działa na telefonie", "Brak opisów usług", "Przestarzały wygląd"]
-
-Return ONLY the JSON object, no explanation, no markdown fences.`;
+Return ONLY the JSON object. No explanation. No markdown fences.`;
 
 async function extractData(html) {
   console.log(`\n[2/5] Calling Claude API to extract business data...`);
@@ -196,12 +220,23 @@ async function extractData(html) {
   const data = JSON.parse(clean);
 
   const issues = data._issues || [];
+  const confidence = data._confidence || 0;
   delete data._issues;
+  delete data._confidence;
 
-  console.log(`      Extracted: ${Object.values(data).filter(Boolean).length}/30 fields filled`);
+  const filled = Object.values(data).filter(Boolean).length;
+  console.log(`      Extracted: ${filled}/34 fields filled`);
+  console.log(`      Confidence: ${confidence}/100 ${confidence >= 80 ? "✓ send" : confidence >= 50 ? "⚠ review first" : "✗ manual enrichment needed"}`);
   if (issues.length) console.log(`      Issues found: ${issues.length}`);
 
-  return { data, issues };
+  if (confidence < 50) {
+    throw new Error(
+      `LOW_CONFIDENCE: score ${confidence}/100 — content too thin to generate a good demo. ` +
+      `Enrich manually with business name + city or request info from the lead.`
+    );
+  }
+
+  return { data, issues, confidence };
 }
 
 // ── Step 3: Fill template ─────────────────────────────────────────────────────
@@ -292,7 +327,7 @@ async function deployToNetlify(htmlContent, businessName) {
 
 // ── Step 5: Print results ─────────────────────────────────────────────────────
 
-function printColdEmail(data, issues, previewUrl) {
+function printColdEmail(data, issues, confidence, previewUrl) {
   const name = data.FULL_NAME || "Właściciel";
   const firstName = name.split(" ")[0];
   const issueLines = issues.length
@@ -301,7 +336,8 @@ function printColdEmail(data, issues, previewUrl) {
 
   console.log(`
 ═══════════════════════════════════════════════════════
-PREVIEW URL:  ${previewUrl}
+PREVIEW URL:   ${previewUrl}
+CONFIDENCE:    ${confidence}/100 ${confidence >= 80 ? "✓ send now" : "⚠ review before sending"}
 ═══════════════════════════════════════════════════════
 
 COLD EMAIL DRAFT:
@@ -345,7 +381,7 @@ async function main() {
 
   const previewUrl = await deployToNetlify(filled, data.FULL_NAME || data.TITLE);
 
-  printColdEmail(data, issues, previewUrl);
+  printColdEmail(data, issues, confidence, previewUrl);
 }
 
 main().catch((err) => {
