@@ -12,7 +12,7 @@ Two forms. Build in Tally, share via URL. Free tier sufficient unless photo uplo
 ### PAGE 1 — Witaj
 
 **[STATEMENT]**
-> Wypełnienie zajmuje około 5 minut.
+> Wypełnienie zajmuje około 5 minut — lub nawet 1 minutę, jeśli masz już stronę.
 > Jeśli nie masz gotowych tekstów — napisz hasłowo. My przygotujemy profesjonalną treść.
 > Jeśli czegoś nie masz — zaznacz to na końcu, a my przygotujemy.
 
