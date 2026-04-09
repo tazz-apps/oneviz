@@ -51,6 +51,12 @@ Conditional: show if existing site = "Tak"
 **[STATEMENT]** *(conditional: show if existing site = "Tak")*
 > Jeśli zaznaczyłeś wszystko i nie ma zmian — możesz pominąć resztę i kliknąć "Wyślij".
 
+**[URL]** "Profil Google Moja Firma (jeśli masz)"
+Required: NO
+Placeholder: https://maps.google.com/... lub https://g.page/...
+*Opcjonalne — jeśli podasz, automatycznie pobierzemy dane kontaktowe i opinie.*
+Conditional: show if existing site = "Nie"
+
 ---
 
 ### PAGE 3 — Twoje dane (25%)
@@ -114,23 +120,23 @@ Conditional: show if communication = "WhatsApp"
 Required: YES
 Placeholder: Doradztwo kredytowe
 
-**[LONG TEXT]** "Usługa 1 — opis"
+**[SHORT TEXT]** "Usługa 1 — dla kogo i efekt"
 Required: YES
-Placeholder: Dla kogo: właściciele firm / Problem: trudno dostać kredyt / Efekt: kredyt w 2 tygodnie
+Placeholder: Właściciele firm → kredyt w 2 tygodnie
 
 **[SHORT TEXT]** "Usługa 2 — nazwa"
 Required: YES
 
-**[LONG TEXT]** "Usługa 2 — opis"
+**[SHORT TEXT]** "Usługa 2 — dla kogo i efekt"
 Required: YES
-Placeholder: Dla kogo: ... / Problem: ... / Efekt: ...
+Placeholder: Osoby prywatne → najlepsza oferta z 20 banków
 
 **[SHORT TEXT]** "Usługa 3 — nazwa"
 Required: YES
 
-**[LONG TEXT]** "Usługa 3 — opis"
+**[SHORT TEXT]** "Usługa 3 — dla kogo i efekt"
 Required: YES
-Placeholder: Dla kogo: ... / Problem: ... / Efekt: ...
+Placeholder: Freelancerzy → kredyt bez umowy o pracę
 
 ---
 
