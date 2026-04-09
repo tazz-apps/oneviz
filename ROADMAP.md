@@ -27,7 +27,7 @@ Every client gets a consistent slug: `kowalski-ubezpieczenia`, `salon-kwiatkowsk
 Used for: Netlify site name, folder, future repo/config naming.
 Why it matters: after 20 clients, inconsistent naming creates chaos that's painful to fix retroactively.
 - [ ] Add slug field to Tally form (done)
-- [ ] Decide slug format: `{surname}-{industry}` or `{city}-{surname}`
+- [ ] Slug format: `{surname}-{industry}-{city}` — e.g. `kowalski-ubezpieczenia-krakow`. Three parts prevent collisions when same industry repeats across cities.
 - [ ] Apply to all Netlify deploys going forward
 
 ### Client CRM (lightweight)
@@ -186,3 +186,5 @@ The jump from 3 to 4 is AI-assisted content.
 The jump from 4 to 5 is full automation.
 
 Don't skip levels. Each one builds the foundation for the next.
+
+**Golden rule:** if you do something manually twice with the second client — automate it. Your bottleneck is never the code. It's content chaos from clients. That's what AI solves.
