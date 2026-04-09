@@ -22,6 +22,21 @@ Revenue ceiling at this level: ~10–15 sites/month solo.
 ## Near-term — Level 3 (Systematic Freelancer)
 *Target: first 5 paying clients. Goal: prove the model, tighten the process.*
 
+### First clients — Program Pilotażowy
+499 PLN for first 5 clients (normally 1,490 PLN). Conditions: portfolio consent + testimonial + 10 min feedback call.
+This is R&D, not revenue. Goal: test the pipeline, find the real bottleneck, collect social proof.
+**Never call it a discount. Call it "Program Pilotażowy" — limited to 5 slots.**
+
+Target profile: local Kraków businesses — insurance agents, financial advisors, real estate agents, kosmetolodzy. Fast decisions, clear scope, no committee.
+
+Price ladder after pilot:
+- Clients 1–5: 499 PLN (program pilotażowy)
+- Clients 6–10: 790 PLN (have case studies)
+- Clients 11–20: 990 PLN (proven process)
+- Clients 21+: 1,490 PLN (full price, social proof established)
+
+Rule: never lower price. Only raise it.
+
 ### Naming convention (do this before client #1)
 Every client gets a consistent slug: `kowalski-ubezpieczenia`, `salon-kwiatkowski`
 Used for: Netlify site name, folder, future repo/config naming.
