@@ -10,17 +10,14 @@ Progress bar: enable in form settings → show as percentage (not "3 of 8") → 
 
 ---
 
-### PAGE 1 — Witaj
-*No progress bar on this page — it's the cover screen.*
+### PAGE 1 — Start (12%)
+*Cover screen + existing site gate on one page.*
 
 **[STATEMENT]**
 > Wypełnienie zajmuje około 5 minut — lub nawet 1 minutę, jeśli masz już stronę.
-> Jeśli nie masz gotowych tekstów — napisz hasłowo. My przygotujemy profesjonalną treść.
-> Jeśli czegoś nie masz — zaznacz to na końcu, a my przygotujemy.
+> Jeśli nie masz gotowych tekstów — napisz hasłowo, my przygotujemy.
 
 ---
-
-### PAGE 2 — Istniejąca strona (12%)
 
 **[MULTIPLE CHOICE]** "Czy masz już stronę internetową?"
 Required: YES
