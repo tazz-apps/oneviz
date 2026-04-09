@@ -1,71 +1,140 @@
-# Client Brief — OneViz Website
+# Formularz — Dane do strony
 
-*Fill this in before we start. Takes 5 minutes. The more detail, the better the result.*
-
----
-
-**1. GOAL**
-What should visitors do when they land on your site?
-- [ ] Call you
-- [ ] Send an email / form
-- [ ] Book an appointment
-- [ ] Visit your location
-- [ ] Other: ___________
+*Wypełnienie zajmuje około 5 minut. Im więcej podasz, tym lepszy efekt.*
 
 ---
 
-**2. SERVICES**
-List your 3 main services — the ones you earn most from.
+## 1. Czy masz już stronę internetową?
+
+- [ ] Tak — adres strony: ___________
+- [ ] Nie
+
+**Jeśli TAK — co chcesz zachować ze starej strony?**
+*(odznacz to, czego NIE chcesz zachować)*
+
+- [ ] Dane kontaktowe (telefon, email, adres)
+- [ ] Opisy usług
+- [ ] Bio / opis firmy
+- [ ] Social media
+- [ ] Opinie klientów
+
+Co chcesz zmienić lub dodać:
+___________
+
+*→ Jeśli zaznaczyłeś "zachowaj wszystko" i nie ma zmian — możemy przejść od razu do produkcji.*
+
+---
+
+## 2. Dane kontaktowe
+
+Imię i nazwisko / nazwa firmy:
+Stanowisko / tytuł zawodowy (np. "Doradca finansowy", "Kosmetolog"):
+Telefon:
+Email:
+Miasto / obszar działania:
+
+---
+
+## 3. Twoje usługi
+
+*3 usługi, na których zarabiasz najwięcej.*
+
+**Usługa 1**
+Nazwa:
+Krótki opis (1–2 zdania):
+
+**Usługa 2**
+Nazwa:
+Krótki opis:
+
+**Usługa 3**
+Nazwa:
+Krótki opis:
+
+---
+
+## 4. Dlaczego klienci wybierają właśnie Ciebie?
+
+*3 konkretne powody. Unikaj ogólników ("jakość", "doświadczenie") — wszyscy to piszą.*
+
+*Przykłady: "Jedyna certyfikowana X w mieście", "Odpowiadam w ciągu 2 godzin", "15 lat tylko w tej branży"*
+
 1.
 2.
 3.
 
 ---
 
-**3. USP (your edge)**
-Why should someone choose you over the competition?
-Give one concrete reason (not "quality and experience" — everyone says that).
+## 5. O Tobie
 
-*Example: "I'm the only certified X in the city", "I respond within 2 hours", "15 years only in this niche"*
+Krótkie bio (2–3 zdania — kim jesteś, skąd doświadczenie, dla kogo pracujesz):
 
----
-
-**4. MATERIALS**
-- Do you have a photo of yourself (professional or good phone photo)? YES / NO
-- Do you have client testimonials / reviews? YES / NO
-- Do you have a logo? YES / NO
-- Do you have copy / texts ready, or should we write them? READY / WRITE FOR ME
+Lata doświadczenia (opcjonalne):
+Liczba klientów (opcjonalne, np. "200+"):
 
 ---
 
-**5. DESIGN REFERENCE**
-Paste a link to one website you like — any industry, any country.
-(We'll match the feel, not copy it.)
+## 6. Opinie klientów
 
-Link:
-What do you like about it?
+*(opcjonalne — jeśli nie masz, możemy pominąć tę sekcję)*
 
----
+**Opinia 1**
+Treść:
+Autor (imię + stanowisko lub "Klient"):
 
-**6. DOMAIN**
-Do you already have a domain name (e.g. jankowalski.pl)?
-- [ ] Yes — domain: ___________
-- [ ] No — I need one
+**Opinia 2**
+Treść:
+Autor:
 
 ---
 
-**7. SUCCESS**
-How will you know in 1 month that this site was a good investment?
-(E.g. "I get 5 calls/week from new clients", "I can show it to partners and feel proud")
+## 7. Social media i kontakt
+
+*(zostaw puste jeśli nie używasz)*
+
+Facebook:
+Instagram:
+LinkedIn:
+WhatsApp (numer do przycisku kontaktowego):
+Google Maps embed URL (jeśli chcesz mapę na stronie):
 
 ---
 
-## Optional (helps us go faster)
+## 8. Zdjęcia i materiały
 
-- Phone: 
-- Email:
-- City / service area:
-- LinkedIn / Facebook / Instagram:
-- WhatsApp number (for contact button):
-- Preferred primary CTA text (default: "Zadzwoń"):
-- Google Maps embed URL (if you want a map on the site):
+- Masz zdjęcie profilowe (profesjonalne lub dobre zdjęcie telefonem)? TAK / NIE
+- Masz logo? TAK / NIE
+
+---
+
+## 9. Domena
+
+- [ ] Mam już domenę — adres: ___________
+- [ ] Nie mam domeny — proszę o pomoc
+
+---
+
+## Zgody produkcyjne
+
+*Zaznacz wszystko co pasuje — to przyspiesza projekt.*
+
+- [ ] Nie mam gotowych tekstów — proszę przygotować na podstawie moich odpowiedzi
+- [ ] Nie mam zdjęć — użyj stocków pasujących do branży
+- [ ] Mogę przesłać dodatkowe materiały później (przed wdrożeniem)
+
+---
+
+*Dziękujemy! Wrócimy do Ciebie w ciągu 24 godzin z potwierdzeniem i harmonogramem.*
+
+---
+
+<!-- INTERNAL — variable mapping for template fill
+Q2  → FULL_NAME, TITLE, PHONE, EMAIL, CITY
+Q3  → SERVICE_1_TITLE/DESC, SERVICE_2_TITLE/DESC, SERVICE_3_TITLE/DESC
+Q4  → WHY_1_TITLE/DESC, WHY_2_TITLE/DESC, WHY_3_TITLE/DESC
+Q5  → BIO_SHORT, BIO_LONG, EXPERIENCE_YEARS, CLIENTS_COUNT
+Q6  → REVIEW_1_TEXT/AUTHOR, REVIEW_2_TEXT/AUTHOR
+Q7  → FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL, WHATSAPP_NUMBER, GOOGLE_MAPS_EMBED
+Q8  → PHOTO_URL (upload → host → fill)
+Q1  → if existing site URL provided → run scraper/scrape.js first, then override with form delta
+-->
