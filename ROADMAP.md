@@ -114,23 +114,55 @@ Restart-safe, debuggable, no database needed at this volume.
 4. City (required) — fallback
 5. Existing website URL (optional)
 
-### Email templates
+### Email sequence (2-step drip)
 
-**Email 1 — Instant (sent immediately on form submit):**
-> Temat: Pracujemy nad podglądem Twojej strony
-> Przygotowujemy wstępny projekt — sprawdź skrzynkę za kilka minut.
-> W razie pytań zadzwoń: [your number]
+Two-step flow: lead sees issues first, demo only after they show interest — or after 3 days of silence.
+Scraper runs immediately on URL submission but demo is held back intentionally.
 
-**Email 2 — Demo (sent when scraper succeeds):**
-> Temat: [Business Name] — podgląd nowej strony
-> Odbudowaliśmy Twoją stronę w ~3 minuty.
-> 👉 Podgląd: [link]
-> Co poprawiliśmy: [bullet issues from scraper]
-> Jeśli chcesz, wdrożymy to w tym tygodniu. Zadzwoń: [your number]
+```
+URL submitted → scraper runs → issues extracted + demo built
+    ↓
+Email 1 (immediate): issues only, no demo link
+    ↓
+Response? → send demo link immediately
+No response → wait 3 days → Email 2: demo link
+```
 
-**Email 3 — Fallback (sent when scraper fails or no URL):**
-> Temat: Przygotowujemy coś dla Ciebie
-> Przygotowujemy indywidualny projekt — zadzwonię w ciągu 24h, żeby omówić szczegóły.
+**Email 1 — Issues hook (sent immediately, URL path):**
+> Temat: [Nazwa firmy] — znaleźliśmy 3 rzeczy do poprawy
+>
+> Dzień dobry,
+> przejrzałem stronę [domain].
+>
+> 3 rzeczy które tracą klientów:
+> • [_issue 1]
+> • [_issue 2]
+> • [_issue 3]
+>
+> Każdą z nich możemy naprawić.
+> Chcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [your number]
+
+**Email 2 — Demo follow-up (day 3, no response):**
+> Temat: [Nazwa firmy] — przygotowałem podgląd
+>
+> Dzień dobry,
+> pisałem kilka dni temu o [_issue 1].
+> W międzyczasie przygotowałem wstępny projekt:
+>
+> 👉 [Netlify preview URL]
+>
+> Zajmuje 30 sekund żeby rzucić okiem.
+> Jeśli coś zainteresuje — zadzwoń: [your number]
+
+**Email — No URL path (sent immediately when no URL provided):**
+> Temat: Dziękujemy za kontakt
+> Przygotowujemy indywidualną propozycję — zadzwonię w ciągu 24h.
+
+**Phase 1 (manual):** scraper outputs issues + demo link in terminal. You send Email 1 manually.
+Set 3-day phone reminder. No reply → send Email 2 with demo link.
+
+**Phase 2 (automated):** Airtable status field: `scraped` → `email1_sent` → `demo_sent` → `responded` → `closed`.
+Resend handles scheduled Email 2 on day 3.
 
 ---
 

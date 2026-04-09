@@ -333,28 +333,43 @@ function printColdEmail(data, issues, confidence, previewUrl) {
   const issueLines = issues.length
     ? issues.map((i) => `• ${i}`).join("\n")
     : "• Strona wymaga odświeżenia i optymalizacji";
+  const firstIssue = issues[0] || "wygląd strony";
 
   console.log(`
 ═══════════════════════════════════════════════════════
 PREVIEW URL:   ${previewUrl}
-CONFIDENCE:    ${confidence}/100 ${confidence >= 80 ? "✓ send now" : "⚠ review before sending"}
+CONFIDENCE:    ${confidence}/100 ${confidence >= 80 ? "✓ ready to send" : "⚠ review before sending"}
 ═══════════════════════════════════════════════════════
 
-COLD EMAIL DRAFT:
+STEP 1 — Send this now (issues hook, no demo link yet):
 ─────────────────────────────────────────────────────
-Temat: ${name} — podgląd nowej strony
+Temat: ${name} — znaleźliśmy 3 rzeczy do poprawy
 
 Dzień dobry ${firstName},
 
-przygotowałem wstępny podgląd nowej strony:
-${previewUrl}
-
-Główne problemy na obecnej stronie:
+przejrzałem stronę i znalazłem 3 rzeczy które tracą klientów:
 ${issueLines}
 
-Mogę wdrożyć w 2–3 dni roboczych. Strony zaczynam od 1 500 PLN.
+Każdą z nich możemy naprawić.
+Chcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [Twój numer]
 
-Pozdrawiam,
+[Twoje imię]
+─────────────────────────────────────────────────────
+
+STEP 2 — Send after 3 days if no reply (demo reveal):
+─────────────────────────────────────────────────────
+Temat: ${name} — przygotowałem podgląd
+
+Dzień dobry ${firstName},
+
+pisałem kilka dni temu o ${firstIssue.toLowerCase()}.
+W międzyczasie przygotowałem wstępny projekt:
+
+👉 ${previewUrl}
+
+Zajmuje 30 sekund żeby rzucić okiem.
+Jeśli coś zainteresuje — zadzwoń: [Twój numer]
+
 [Twoje imię]
 ─────────────────────────────────────────────────────
 `);
