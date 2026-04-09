@@ -375,6 +375,128 @@ Jeśli coś zainteresuje — zadzwoń: [Twój numer]
 `);
 }
 
+// ── Step 6: Write email-preview.html ─────────────────────────────────────────
+
+function escHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function fmtBody(text) {
+  return escHtml(text)
+    .replace(/(• .+)/g, '<span class="hl">$1</span>')
+    .replace(/(👉 https?:\/\/\S+)/g, '<span class="lnk">$1</span>')
+    .replace(/(\[.+?\])/g, '<span class="ph">$1</span>');
+}
+
+function writeEmailPreview(data, issues, confidence, previewUrl) {
+  const name = data.FULL_NAME || "Właściciel";
+  const firstName = name.split(" ")[0];
+  const issueLines = issues.length
+    ? issues.map((i) => `• ${i}`).join("\n")
+    : "• Strona wymaga odświeżenia i optymalizacji";
+  const firstIssue = (issues[0] || "wygląd strony").toLowerCase();
+
+  const subj1 = `${name} — znaleźliśmy 3 rzeczy do poprawy`;
+  const body1 = `Dzień dobry ${firstName},\n\nprzejrzałem stronę i znalazłem 3 rzeczy które tracą klientów:\n${issueLines}\n\nKażdą z nich możemy naprawić.\nChcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [Twój numer]\n\n[Twoje imię]`;
+
+  const subj2 = `${name} — przygotowałem podgląd`;
+  const body2 = `Dzień dobry ${firstName},\n\npisałem kilka dni temu o ${firstIssue}.\nW międzyczasie przygotowałem wstępny projekt:\n\n👉 ${previewUrl}\n\nZajmuje 30 sekund żeby rzucić okiem.\nJeśli coś zainteresuje — zadzwoń: [Twój numer]\n\n[Twoje imię]`;
+
+  const badge = confidence >= 80
+    ? `<span class="badge high">✓ ${confidence}/100 — ready to send</span>`
+    : `<span class="badge med">⚠ ${confidence}/100 — review before sending</span>`;
+
+  const html = `<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Email Preview — ${escHtml(name)}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0a1628;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#f1f5f9;padding:2rem 1rem;min-height:100vh}
+  .wrap{max-width:660px;margin:0 auto}
+  .top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;margin-bottom:1.75rem}
+  .logo{font-size:1rem;font-weight:800;color:#3B82F6;letter-spacing:-.02em}
+  .badge{font-size:.75rem;font-weight:700;padding:.28rem .8rem;border-radius:20px}
+  .badge.high{background:rgba(16,185,129,.1);color:#10B981;border:1px solid rgba(16,185,129,.3)}
+  .badge.med{background:rgba(251,191,36,.1);color:#FBBF24;border:1px solid rgba(251,191,36,.3)}
+  .preview-link{font-size:.78rem;color:#475569;margin-bottom:1.75rem;word-break:break-all}
+  .preview-link a{color:#3B82F6}
+  .panel{background:#0f1e30;border:1px solid rgba(255,255,255,.09);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+  .ph-row{background:rgba(59,130,246,.07);border-bottom:1px solid rgba(255,255,255,.06);padding:.65rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+  .step{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#3B82F6}
+  .timing{font-size:.7rem;color:#475569}
+  .copy-btn{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#3B82F6;padding:.27rem .75rem;border-radius:6px;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+  .copy-btn:hover{background:rgba(59,130,246,.22)}
+  .copy-btn.ok{color:#10B981;border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.08)}
+  .meta{padding:.8rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:.3rem}
+  .mr{display:flex;gap:.55rem;font-size:.8rem}
+  .ml{color:#475569;min-width:50px;flex-shrink:0}
+  .mv{color:#94a3b8}
+  .ms{color:#f1f5f9;font-weight:600}
+  pre.body{padding:1.1rem;font-family:'Courier New',monospace;font-size:.84rem;line-height:1.9;color:#94a3b8;white-space:pre-wrap}
+  pre.body .hl{color:#f1f5f9}
+  pre.body .lnk{color:#3B82F6}
+  pre.body .ph{color:#475569;font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="logo">OneViz — Email Preview</span>
+    ${badge}
+  </div>
+  <p class="preview-link">Preview: <a href="${previewUrl}" target="_blank">${escHtml(previewUrl)}</a></p>
+
+  <div class="panel">
+    <div class="ph-row">
+      <div><span class="step">Email 1 — wyślij teraz</span> <span class="timing">· issues hook, bez linku do demo</span></div>
+      <button class="copy-btn" onclick="cp(this,'e1')">Kopiuj</button>
+    </div>
+    <div class="meta">
+      <div class="mr"><span class="ml">Do:</span><span class="mv">[email klienta]</span></div>
+      <div class="mr"><span class="ml">Temat:</span><span class="mv ms">${escHtml(subj1)}</span></div>
+    </div>
+    <pre class="body" id="e1">${fmtBody(body1)}</pre>
+  </div>
+
+  <div class="panel">
+    <div class="ph-row">
+      <div><span class="step">Email 2 — wyślij po 3 dniach</span> <span class="timing">· tylko jeśli brak odpowiedzi</span></div>
+      <button class="copy-btn" onclick="cp(this,'e2')">Kopiuj</button>
+    </div>
+    <div class="meta">
+      <div class="mr"><span class="ml">Do:</span><span class="mv">[email klienta]</span></div>
+      <div class="mr"><span class="ml">Temat:</span><span class="mv ms">${escHtml(subj2)}</span></div>
+    </div>
+    <pre class="body" id="e2">${fmtBody(body2)}</pre>
+  </div>
+</div>
+<script>
+  function cp(btn,id){
+    navigator.clipboard.writeText(document.getElementById(id).innerText).then(function(){
+      btn.textContent='Skopiowano ✓';btn.classList.add('ok');
+      setTimeout(function(){btn.textContent='Kopiuj';btn.classList.remove('ok')},2000);
+    });
+  }
+</script>
+</body>
+</html>`;
+
+  const out = path.join(__dirname, "last-preview.html");
+  fs.writeFileSync(out, html, "utf8");
+  const filePath = out.replace(/\\/g, "/");
+  console.log(`\n📧  Email preview: file:///${filePath}`);
+
+  // Auto-open best-effort
+  try {
+    const cmd = process.platform === "win32"
+      ? `start "" "${out}"`
+      : process.platform === "darwin" ? `open "${out}"` : `xdg-open "${out}"`;
+    require("child_process").exec(cmd);
+  } catch (_) {}
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -388,7 +510,7 @@ async function main() {
   const templateHtml = fs.readFileSync(TEMPLATE_PATH, "utf8");
 
   const html = await fetchSite(targetUrl);
-  const { data, issues } = await extractData(html);
+  const { data, issues, confidence } = await extractData(html);
 
   console.log(`\n[3/5] Filling template...`);
   const filled = fillTemplate(templateHtml, data);
@@ -397,6 +519,7 @@ async function main() {
   const previewUrl = await deployToNetlify(filled, data.FULL_NAME || data.TITLE);
 
   printColdEmail(data, issues, confidence, previewUrl);
+  writeEmailPreview(data, issues, confidence, previewUrl);
 }
 
 main().catch((err) => {

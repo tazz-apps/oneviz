@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-pl="OneViz — Strona internetowa dla Twojej firmy" data-en="OneViz — A website for your local business">OneViz — Strona internetowa dla Twojej firmy</title>
+  <meta name="description" content="Profesjonalna strona internetowa dla lokalnej firmy. Gotowa w 5–10 dni. Pierwsze 5 firm: 499 PLN.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="OneViz — Strona internetowa dla Twojej firmy">
+  <meta property="og:description" content="Profesjonalna strona dla lokalnej firmy w Krakowie. Gotowa w 5–10 dni. AI generuje teksty, Ty tylko akceptujesz. Pierwsze 5 firm: 499 PLN.">
+  <meta property="og:locale" content="pl_PL">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://oneviz.pl/">
+  <!-- Microsoft Clarity — replace CLARITY_PROJECT_ID with your project ID from clarity.microsoft.com -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window,document,"clarity","script","CLARITY_PROJECT_ID");
+  </script>
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg-dark:    #0a1628;
+      --bg-surface: #1A2E4A;
+      --bg-light:   #FFFFFF;
+      --bg-subtle:  #F8FAFC;
+      --accent:     #3B82F6;
+      --accent-hov: #2563EB;
+      --accent-glow:#3B82F6;
+      --purple:     #8B5CF6;
+      --text-light: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dark:  #0F1B2D;
+      --text-body:  #374151;
+      --radius:     10px;
+      --radius-lg:  16px;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: var(--text-dark); }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font: inherit; }
+
+    /* ── LANGUAGE TOGGLE ── */
+    [data-en] { display: none; }
+    body.lang-en [data-pl] { display: none; }
+    body.lang-en [data-en] { display: revert; }
+
+    /* ── TYPOGRAPHY ── */
+    .hero-headline { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.02em; color: var(--text-light); }
+    .section-headline { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+    .lead { font-size: clamp(1rem, 2vw, 1.15rem); color: var(--text-muted); line-height: 1.7; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-size: 1rem; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hov); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+    .btn-outline { border: 1.5px solid rgba(255,255,255,0.2); color: var(--text-light); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-dark { background: var(--bg-dark); color: var(--text-light); border: 1.5px solid rgba(255,255,255,0.1); }
+    .btn-dark:hover { border-color: var(--accent); }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1.25rem 0;
+      background: rgba(10, 22, 40, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 1.35rem; font-weight: 800; color: var(--text-light); letter-spacing: -0.03em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-links { display: none; align-items: center; gap: 0.25rem; }
+    .nav-links a { font-size: 0.85rem; color: var(--text-muted); padding: 0.35rem 0.65rem; border-radius: 6px; transition: color 0.15s; font-weight: 500; }
+    .nav-links a:hover { color: var(--text-light); }
+    @media (min-width: 768px) { .nav-links { display: flex; } }
+    #lang-toggle {
+      font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 6px;
+      padding: 0.3rem 0.7rem; transition: all 0.2s; letter-spacing: 0.05em;
+    }
+    #lang-toggle:hover { color: var(--text-light); border-color: rgba(255,255,255,0.3); }
+    .nav-cta { padding: 0.5rem 1.1rem; font-size: 0.9rem; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      background: var(--bg-dark);
+      display: flex; align-items: center;
+      padding: 7rem 0 5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center; }
+    .hero-label {
+      display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25); border-radius: 20px;
+      padding: 0.3rem 0.85rem; margin-bottom: 1.25rem;
+    }
+    .hero-sub { color: var(--text-muted); font-size: 1.1rem; margin: 1rem 0 2rem; max-width: 480px; line-height: 1.7; }
+
+    /* ── HERO FORM ── */
+    #lead-form {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      backdrop-filter: blur(8px);
+      margin-top: 0.5rem;
+    }
+    .form-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.1rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-field label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+    .form-field input {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 7px; padding: 0.6rem 0.85rem;
+      color: var(--text-light); font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    .form-field input::placeholder { color: rgba(148,163,184,0.5); }
+    .form-field input:focus { outline: none; border-color: var(--accent); background: rgba(59,130,246,0.06); }
+    /* Hook block */
+    .form-hook {
+      background: rgba(59,130,246,0.06);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 9px;
+      padding: 1rem;
+      margin-bottom: 0.85rem;
+    }
+    .form-hook-label {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.82rem; font-weight: 600; color: var(--text-light);
+      margin-bottom: 0.65rem; line-height: 1.5;
+    }
+    .hook-icon { color: var(--accent); flex-shrink: 0; }
+    .form-hook textarea {
+      width: 100%; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 7px;
+      padding: 0.6rem 0.85rem; color: var(--text-light);
+      font-size: 0.88rem; font-family: inherit; line-height: 1.6;
+      resize: none; min-height: 92px; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .form-hook textarea::placeholder { color: rgba(148,163,184,0.45); }
+    .form-hook textarea:focus { outline: none; border-color: var(--accent); }
+    .hook-note { font-size: 0.72rem; color: rgba(148,163,184,0.5); margin-top: 0.45rem; font-style: italic; }
+
+    /* Contact row */
+    .form-contacts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 0.0rem; }
+
+    /* Alternative CTAs */
+    .form-alts { margin-top: 1rem; text-align: center; }
+    .form-alts-label { font-size: 0.75rem; color: rgba(148,163,184,0.4); display: block; margin-bottom: 0.6rem; }
+    .form-alts-btns { display: flex; gap: 0.6rem; justify-content: center; }
+    .alt-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.45rem 1rem; border-radius: 7px;
+      font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
+      border: 1px solid rgba(255,255,255,0.12); color: var(--text-muted);
+    }
+    .alt-btn:hover { color: var(--text-light); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+    .alt-wa:hover { border-color: #25D366; color: #25D366; }
+    .alt-call:hover { border-color: var(--accent); color: var(--accent); }
+
+    .form-submit {
+      width: 100%; margin-top: 0.85rem;
+      background: var(--accent); color: #fff;
+      border-radius: 8px; padding: 0.8rem;
+      font-size: 1rem; font-weight: 700;
+      transition: all 0.2s;
+    }
+    .form-submit:hover { background: var(--accent-hov); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+    .form-note { font-size: 0.73rem; color: rgba(148,163,184,0.6); text-align: center; margin-top: 0.6rem; }
+
+    /* ── ANIMATED VISUAL ── */
+    .hero-visual { display: none; position: relative; height: 420px; align-items: center; justify-content: center; }
+
+    /* Glowing orbs */
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(59,130,246,0.45) 0%, transparent 70%);
+      top: 10%; left: 5%;
+      animation: float1 7s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%);
+      bottom: 8%; right: 8%;
+      animation: float2 9s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(59,130,246,0.25) 0%, transparent 70%);
+      top: 50%; right: 20%;
+      animation: float3 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes float1 { from { transform: translateY(0) scale(1); opacity: 0.5; } to { transform: translateY(-25px) scale(1.08); opacity: 0.75; } }
+    @keyframes float2 { from { transform: translateY(0) scale(1); opacity: 0.4; } to { transform: translateY(20px) scale(1.06); opacity: 0.65; } }
+    @keyframes float3 { from { transform: translateY(0); opacity: 0.3; } to { transform: translateY(-15px); opacity: 0.55; } }
+
+    /* Browser mockup card */
+    .mockup-card {
+      position: relative; z-index: 2;
+      width: 340px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      transform: rotate(-2deg);
+      animation: bob 5s ease-in-out infinite alternate;
+    }
+    @keyframes bob { from { transform: rotate(-2deg) translateY(0); } to { transform: rotate(-2deg) translateY(-12px); } }
+
+    .mockup-chrome {
+      background: rgba(255,255,255,0.06);
+      padding: 0.7rem 0.85rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .chrome-dots { display: flex; gap: 5px; }
+    .chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .chrome-dot:nth-child(1) { background: #FF5F57; }
+    .chrome-dot:nth-child(2) { background: #FEBC2E; }
+    .chrome-dot:nth-child(3) { background: #28C840; }
+    .chrome-url {
+      flex: 1; height: 22px; background: rgba(255,255,255,0.07);
+      border-radius: 5px; margin-left: 0.4rem;
+    }
+
+    .mockup-body { padding: 1.1rem; }
+
+    /* Hero banner skeleton */
+    .skeleton-hero {
+      height: 80px; border-radius: 8px;
+      background: linear-gradient(90deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.12) 50%, rgba(59,130,246,0.18) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.2s linear infinite;
+      margin-bottom: 0.9rem;
+    }
+    .skeleton-row {
+      height: 10px; border-radius: 5px; margin-bottom: 0.55rem;
+      background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.2s linear infinite;
+    }
+    .skeleton-row.short { width: 65%; }
+    .skeleton-row.medium { width: 82%; }
+
+    .skeleton-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.9rem; }
+    .skeleton-card {
+      height: 56px; border-radius: 7px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      animation: shimmer 2.2s linear infinite;
+    }
+
+    @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+    /* Floating badge */
+    .mockup-badge {
+      position: absolute; top: -12px; right: -12px; z-index: 3;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff; font-size: 0.7rem; font-weight: 700;
+      padding: 0.3rem 0.65rem; border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(59,130,246,0.4);
+      animation: badgepop 4s ease-in-out infinite;
+      letter-spacing: 0.04em;
+    }
+    @keyframes badgepop { 0%,100% { transform: scale(1) rotate(2deg); } 50% { transform: scale(1.06) rotate(2deg); } }
+
+    /* ── HOW IT WORKS ── */
+    #how-it-works { padding: 6rem 0; background: var(--bg-light); }
+    .steps-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-top: 3rem; }
+    .step-card {
+      padding: 2rem;
+      border: 1.5px solid #E5E7EB;
+      border-radius: var(--radius-lg);
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .step-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(59,130,246,0.1); }
+    .step-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(59,130,246,0.1); color: var(--accent);
+      font-size: 0.9rem; font-weight: 800; margin-bottom: 1rem;
+    }
+    .step-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-dark); }
+    .step-desc { color: var(--text-body); font-size: 0.95rem; line-height: 1.6; }
+    .step-arrow {
+      display: none;
+      position: absolute; right: -1.5rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem; color: var(--text-muted);
+    }
+    .section-meta { color: var(--text-muted); font-size: 1rem; margin-top: 0.75rem; }
+
+    /* ── SAMPLE EMAIL ── */
+    #sample-email { padding: 6rem 0; background: #0d1f35; }
+    .se-header { margin-bottom: 3rem; }
+    .se-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25); border-radius: 20px;
+      padding: 0.3rem 0.85rem; margin-bottom: 1rem;
+    }
+    .se-header .section-headline { color: var(--text-light); }
+    .se-header .lead { margin-top: 0.75rem; max-width: 540px; }
+    .se-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: start; }
+    .se-copy { }
+    .se-copy p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem; }
+    .se-copy .se-note { font-size: 0.8rem; color: rgba(148,163,184,0.5); font-style: italic; }
+
+    /* Email mockup */
+    .email-mockup {
+      background: #060e1c;
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .em-chrome {
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0.8rem 1.1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .em-dots { display: flex; gap: 5px; }
+    .em-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .em-dot:nth-child(1) { background: #FF5F57; }
+    .em-dot:nth-child(2) { background: #FEBC2E; }
+    .em-dot:nth-child(3) { background: #28C840; }
+    .em-title-bar { flex: 1; text-align: center; font-size: 0.72rem; color: #475569; }
+    .em-meta {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; flex-direction: column; gap: 0.35rem;
+    }
+    .em-meta-row { display: flex; gap: 0.6rem; font-size: 0.8rem; }
+    .em-label { color: #475569; min-width: 52px; flex-shrink: 0; }
+    .em-value { color: #64748b; }
+    .em-subject { color: #cbd5e1; font-weight: 600; }
+    .em-body {
+      padding: 1.25rem 1.25rem 1.5rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.84rem; line-height: 1.9; color: #64748b;
+    }
+    .em-body .em-hi { color: #f1f5f9; }
+    .em-issue {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      color: #f1f5f9; font-size: 0.84rem;
+      opacity: 0; transform: translateX(-8px);
+      animation: issue-in 0.4s ease forwards;
+    }
+    .em-issue:nth-child(1) { animation-delay: 0.3s; }
+    .em-issue:nth-child(2) { animation-delay: 0.7s; }
+    .em-issue:nth-child(3) { animation-delay: 1.1s; }
+    @keyframes issue-in { to { opacity: 1; transform: translateX(0); } }
+    .em-bullet { color: var(--accent); flex-shrink: 0; font-weight: 700; }
+    .em-footer { color: #475569; margin-top: 0.25rem; }
+
+    @media (min-width: 960px) {
+      .se-grid { grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    }
+
+    /* ── DEMO ── */
+    #demo { padding: 6rem 0; background: var(--bg-subtle); }
+    .demo-inner { display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center; }
+    .demo-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.2); border-radius: 20px;
+      padding: 0.3rem 0.85rem; margin-bottom: 1rem;
+    }
+    .demo-headline { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; margin-bottom: 1rem; }
+    .demo-desc { color: var(--text-body); font-size: 1rem; line-height: 1.7; margin-bottom: 1.5rem; }
+    .demo-features { list-style: none; margin-bottom: 2rem; }
+    .demo-features li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.95rem; color: var(--text-body); margin-bottom: 0.6rem; }
+    .demo-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 0.1rem; }
+    .demo-mockup {
+      background: var(--bg-dark);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .demo-mockup-chrome {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .demo-chrome-dots { display: flex; gap: 5px; }
+    .demo-chrome-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .demo-chrome-dot:nth-child(1) { background: #FF5F57; }
+    .demo-chrome-dot:nth-child(2) { background: #FEBC2E; }
+    .demo-chrome-dot:nth-child(3) { background: #28C840; }
+    .demo-chrome-url { flex: 1; background: rgba(255,255,255,0.06); border-radius: 5px; padding: 0.25rem 0.5rem; font-size: 0.72rem; color: var(--text-muted); font-family: monospace; }
+    .demo-preview-area { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 1rem; }
+    .demo-preview-hero { height: 64px; border-radius: 7px; background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.15)); margin-bottom: 0.8rem; }
+    .demo-preview-lines { display: flex; flex-direction: column; gap: 0.4rem; }
+    .demo-preview-line { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; }
+    .demo-preview-line.w60 { width: 60%; }
+    .demo-preview-line.w80 { width: 80%; }
+    .demo-preview-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.8rem; }
+    .demo-preview-card { height: 40px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); }
+    .btn-demo { margin-top: 0; background: var(--text-dark); color: #fff; border: 1.5px solid #E5E7EB; }
+    .btn-demo:hover { background: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+
+    /* ── GROWTH PATH ── */
+    #growth { padding: 3.5rem 0; background: var(--bg-subtle); border-top: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB; }
+    .growth-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem; }
+    .growth-steps { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0; }
+    .growth-step { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 1.25rem; }
+    .growth-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
+    .growth-step.dim .growth-num { background: #E5E7EB; color: var(--text-muted); }
+    .growth-name { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); }
+    .growth-step.dim .growth-name { color: var(--text-muted); }
+    .growth-price { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .growth-arrow { color: #D1D5DB; font-size: 1rem; padding: 0 0.25rem; margin-bottom: 1rem; }
+    @media (max-width: 600px) { .growth-arrow { display: none; } .growth-steps { gap: 0.5rem; } }
+
+    /* ── PROGRAM PILOTAŻOWY ── */
+    #program { padding: 6rem 0; background: var(--bg-dark); }
+    .program-header { text-align: center; margin-bottom: 3rem; }
+    .program-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25); border-radius: 20px;
+      padding: 0.3rem 0.85rem; margin-bottom: 1rem;
+    }
+    .program-header .section-headline { color: var(--text-light); }
+    .program-header .lead { margin-top: 0.75rem; }
+    .pricing-card {
+      max-width: 480px; margin: 0 auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      backdrop-filter: blur(12px);
+      position: relative;
+    }
+    .pricing-card::before {
+      content: '';
+      position: absolute; inset: -1px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(59,130,246,0.3), transparent 50%, rgba(139,92,246,0.2));
+      z-index: -1;
+    }
+    .pricing-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff; font-size: 0.72rem; font-weight: 700;
+      padding: 0.3rem 1rem; border-radius: 20px;
+      white-space: nowrap; letter-spacing: 0.04em;
+    }
+    .price-row { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem; }
+    .price-main { font-size: 3rem; font-weight: 800; color: var(--text-light); letter-spacing: -0.03em; }
+    .price-old { font-size: 1.2rem; color: var(--text-muted); text-decoration: line-through; }
+    .price-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.75rem; }
+    .pricing-features { list-style: none; margin-bottom: 1.75rem; }
+    .pricing-features li { display: flex; align-items: flex-start; gap: 0.65rem; color: var(--text-light); font-size: 0.95rem; margin-bottom: 0.75rem; }
+    .pricing-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .pricing-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 1.5rem 0; }
+    .pricing-conditions { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .pricing-conditions strong { color: rgba(241,245,249,0.7); }
+    .slots-indicator {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem; color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .slot-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; flex-shrink: 0; animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
+    .btn-program { width: 100%; justify-content: center; font-size: 1rem; padding: 0.9rem; }
+
+    /* ── FAQ ── */
+    #faq { padding: 6rem 0; background: var(--bg-dark); }
+    .faq-header { text-align: center; margin-bottom: 3rem; }
+    .faq-header .section-headline { color: var(--text-light); }
+    .faq-header .lead { margin-top: 0.75rem; }
+    .faq-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25); border-radius: 20px;
+      padding: 0.3rem 0.85rem; margin-bottom: 1rem;
+    }
+    .faq-list { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.75rem; }
+    .faq-item {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .faq-item.active { border-color: rgba(59,130,246,0.4); }
+    .faq-question {
+      width: 100%; text-align: left;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.1rem 1.25rem;
+      background: rgba(255,255,255,0.03);
+      color: var(--text-light); font-size: 0.975rem; font-weight: 600;
+      transition: background 0.2s;
+    }
+    .faq-question:hover { background: rgba(255,255,255,0.06); }
+    .faq-item.active .faq-question { background: rgba(59,130,246,0.08); }
+    .faq-icon {
+      flex-shrink: 0; width: 20px; height: 20px;
+      border: 1.5px solid rgba(255,255,255,0.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; color: var(--text-muted);
+      transition: transform 0.25s, border-color 0.2s, color 0.2s;
+    }
+    .faq-item.active .faq-icon { transform: rotate(45deg); border-color: var(--accent); color: var(--accent); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.25s ease;
+      padding: 0 1.25rem;
+      color: var(--text-muted); font-size: 0.925rem; line-height: 1.7;
+    }
+    .faq-item.active .faq-answer { max-height: 200px; padding: 0 1.25rem 1.1rem; }
+    .faq-answer a { color: var(--accent); }
+
+    /* ── TRUST SIGNALS ── */
+    #trust { padding: 5rem 0; background: #060e1c; border-top: 1px solid rgba(255,255,255,0.05); }
+    .trust-header { text-align: center; margin-bottom: 3rem; }
+    .trust-header .section-headline { color: var(--text-light); }
+    .trust-header .lead { margin-top: 0.75rem; }
+    .trust-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .trust-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .trust-card:hover { border-color: rgba(59,130,246,0.3); transform: translateY(-2px); }
+    .trust-icon { font-size: 1.5rem; margin-bottom: 0.75rem; display: block; }
+    .trust-title { font-size: 1rem; font-weight: 700; color: var(--text-light); margin-bottom: 0.4rem; }
+    .trust-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+    .trust-fact { display: inline-block; margin-top: 0.6rem; font-size: 0.75rem; font-weight: 700; color: var(--accent); background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 20px; padding: 0.2rem 0.65rem; }
+    @media (min-width: 768px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 960px) { .trust-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1200px) { .trust-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    /* ── STICKY MOBILE CTA ── */
+    .sticky-cta {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(10,22,40,0.97);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      padding: 0.85rem 1.25rem;
+      gap: 0.75rem;
+    }
+    .sticky-cta a { flex: 1; justify-content: center; text-align: center; padding: 0.7rem 0.5rem; font-size: 0.9rem; border-radius: 8px; font-weight: 700; transition: all 0.2s; }
+    .sticky-wa { background: #25D366; color: #fff; }
+    .sticky-wa:hover { background: #22c35e; }
+    .sticky-call { background: var(--accent); color: #fff; }
+    .sticky-call:hover { background: var(--accent-hov); }
+    @media (max-width: 767px) { .sticky-cta { display: flex; } body { padding-bottom: 72px; } }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #060e1c;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 0;
+    }
+    .footer-inner { display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
+    .footer-logo { font-size: 1.2rem; font-weight: 800; color: var(--text-light); letter-spacing: -0.03em; }
+    .footer-logo span { color: var(--accent); }
+    .footer-contact { font-size: 0.875rem; color: var(--text-muted); }
+    .footer-contact a { color: var(--accent); }
+    .footer-copy { font-size: 0.78rem; color: rgba(148,163,184,0.5); }
+
+    /* ── RESPONSIVE: tablet 768px ── */
+    @media (min-width: 768px) {
+      .steps-grid { grid-template-columns: repeat(3, 1fr); }
+      .step-arrow { display: block; }
+      .demo-inner { grid-template-columns: 1fr 1fr; }
+      .footer-inner { flex-direction: row; justify-content: space-between; text-align: left; }
+    }
+
+    /* ── RESPONSIVE: desktop 960px ── */
+    @media (min-width: 960px) {
+      .hero-grid { grid-template-columns: 1fr 1fr; gap: 4rem; }
+      .hero-visual { display: flex; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">One<span>Viz</span></a>
+    <div class="nav-links">
+      <a href="#how-it-works" data-pl>Jak działa</a>
+      <a href="#how-it-works" data-en>How it works</a>
+      <a href="#demo" data-pl>Demo</a>
+      <a href="#demo" data-en>Demo</a>
+      <a href="#program" data-pl>Cennik</a>
+      <a href="#program" data-en>Pricing</a>
+      <a href="#lead-form" data-pl>Kontakt</a>
+      <a href="#lead-form" data-en>Contact</a>
+    </div>
+    <div class="nav-right">
+      <button id="lang-toggle" aria-label="Switch language">PL | EN</button>
+      <a href="#lead-form" class="btn btn-primary btn-sm nav-cta">
+        <span data-pl>Zgłoś się</span>
+        <span data-en>Get started</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-grid">
+
+      <!-- Left: copy + form -->
+      <div>
+        <div class="hero-label">
+          <span data-pl>Program Pilotażowy — 5 miejsc</span>
+          <span data-en>Pilot Program — 5 spots</span>
+        </div>
+
+        <h1 class="hero-headline">
+          <span data-pl>Strona internetowa,<br>która dzwoni za Ciebie</span>
+          <span data-en>A website that<br>works for you</span>
+        </h1>
+
+        <p class="hero-sub">
+          <span data-pl>Profesjonalna strona dla lokalnej firmy — gotowa w 5–10 dni. Bez pisania tekstów, bez zdjęć, bez technikaliów. Ty rozmawiasz z klientami, resztą zajmujemy się my.</span>
+          <span data-en>A professional site for your local business — ready in 5–10 days. No copywriting, no photos needed, no technical setup. You talk to clients, we handle the rest.</span>
+        </p>
+
+        <div id="lead-form">
+          <form name="lead" data-netlify="true" netlify>
+            <input type="hidden" name="form-name" value="lead">
+
+            <!-- URL / textarea hook -->
+            <div class="form-hook">
+              <div class="form-hook-label">
+                <span class="hook-icon">✦</span>
+                <span data-pl>Masz stronę? Wklej link — pokażemy co traci klientów.</span>
+                <span data-en>Have a site? Paste the link — we'll show what's losing you clients.</span>
+              </div>
+              <textarea id="f-url" name="url_or_desc" rows="4" placeholder="https://mojastrona.pl&#10;&#10;lub: Jan Kowalski, ubezpieczenia OC, Kraków, 12 lat"></textarea>
+              <p class="hook-note">
+                <span data-pl>Opcjonalne, ale rekomendowane — skraca rozmowę o połowę.</span>
+                <span data-en>Optional but recommended — cuts the onboarding call in half.</span>
+              </p>
+            </div>
+
+            <!-- Contact field -->
+            <div class="form-field" style="margin-bottom:0">
+              <label for="f-phone" data-pl>Telefon *</label>
+              <label for="f-phone" data-en>Phone *</label>
+              <input type="tel" id="f-phone" name="phone" placeholder="+48 123 456 789" required style="font-size:1.05rem;padding:0.75rem 1rem;">
+            </div>
+
+            <button type="submit" class="form-submit">
+              <span data-pl>Oddzwonimy — zwykle tego samego dnia →</span>
+              <span data-en>We'll call you — usually same day →</span>
+            </button>
+          </form>
+
+          <p class="form-note">
+            <span data-pl>Bez spamu. Tylko kontakt w sprawie zapytania.</span>
+            <span data-en>No spam. Only contact regarding your enquiry.</span>
+          </p>
+
+          <!-- Alternative CTAs -->
+          <div class="form-alts">
+            <span class="form-alts-label">albo napisz bezpośrednio</span>
+            <div class="form-alts-btns">
+              <a href="https://wa.me/48000000000" target="_blank" rel="noopener" class="alt-btn alt-wa">
+                💬 WhatsApp
+              </a>
+              <a href="tel:+48000000000" class="alt-btn alt-call">
+                📞 <span data-pl>Zadzwoń</span><span data-en>Call us</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: animated visual -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <div class="mockup-card">
+          <div class="mockup-badge">✨ AI-generated</div>
+          <div class="mockup-chrome">
+            <div class="chrome-dots">
+              <div class="chrome-dot"></div>
+              <div class="chrome-dot"></div>
+              <div class="chrome-dot"></div>
+            </div>
+            <div class="chrome-url"></div>
+          </div>
+          <div class="mockup-body">
+            <div class="skeleton-hero"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row medium"></div>
+            <div class="skeleton-row short"></div>
+            <div class="skeleton-cards">
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card" style="animation-delay:0.3s"></div>
+              <div class="skeleton-card" style="animation-delay:0.6s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── TRUST SIGNALS ── -->
+<section id="trust">
+  <div class="container">
+    <div class="trust-header">
+      <h2 class="section-headline">
+        <span data-pl>Strona jak lodówka —<br>działa i o niej nie myślisz</span>
+        <span data-en>Your site like a fridge —<br>it works and you forget about it</span>
+      </h2>
+      <p class="lead">
+        <span data-pl>Nie musisz wiedzieć jak działa kompresor. My pilnujemy żeby działał.</span>
+        <span data-en>You don't need to know how the compressor works. We make sure it does.</span>
+      </p>
+    </div>
+    <div class="trust-grid">
+
+      <div class="trust-card">
+        <span class="trust-icon">⚡</span>
+        <div class="trust-title">
+          <span data-pl>Otwiera się w 1 sekundę</span>
+          <span data-en>Loads in 1 second</span>
+        </div>
+        <p class="trust-desc">
+          <span data-pl>Netlify CDN, czysty HTML, zero WordPressa i pluginów. Większość klientów odpada po 3 sekundach ładowania — Twoja strona tego problemu nie ma.</span>
+          <span data-en>Netlify CDN, clean HTML, zero WordPress plugins. Most visitors leave after 3 seconds of loading — your site never has that problem.</span>
+        </p>
+        <span class="trust-fact">
+          <span data-pl>Szybsza niż 95% stron lokalnych firm</span>
+          <span data-en>Faster than 95% of local business sites</span>
+        </span>
+      </div>
+
+      <div class="trust-card">
+        <span class="trust-icon">🔒</span>
+        <div class="trust-title">
+          <span data-pl>SSL i domena zawsze aktywne</span>
+          <span data-en>SSL and domain always active</span>
+        </div>
+        <p class="trust-desc">
+          <span data-pl>Certyfikat bezpieczeństwa nigdy nie wygaśnie bez Twojej wiedzy. Hosting opłacony, domena monitorowana. Żaden Twój klient nie zobaczy komunikatu "Ta strona jest niebezpieczna".</span>
+          <span data-en>Security certificate never expires without your knowledge. Hosting paid, domain monitored. None of your clients will ever see "This site is not secure".</span>
+        </p>
+        <span class="trust-fact">
+          <span data-pl>Auto-renewal, zero przestojów</span>
+          <span data-en>Auto-renewal, zero downtime</span>
+        </span>
+      </div>
+
+      <div class="trust-card">
+        <span class="trust-icon">🏠</span>
+        <div class="trust-title">
+          <span data-pl>Twoja domena, Twoje dane</span>
+          <span data-en>Your domain, your data</span>
+        </div>
+        <p class="trust-desc">
+          <span data-pl>Domena zawsze na Twoim koncie. Możesz zmienić wykonawcę w każdej chwili bez "płacenia okupu". Chcesz zabrać kod? Możesz — Code Export dostępny zawsze.</span>
+          <span data-en>Domain always in your account. You can change providers at any time without "paying a ransom". Want to take the code? You can — Code Export available any time.</span>
+        </p>
+        <span class="trust-fact">
+          <span data-pl>Pełna własność, zero lock-in</span>
+          <span data-en>Full ownership, zero lock-in</span>
+        </span>
+      </div>
+
+      <div class="trust-card">
+        <span class="trust-icon">✏️</span>
+        <div class="trust-title">
+          <span data-pl>Zmiana w 15 minut</span>
+          <span data-en>Updates in 15 minutes</span>
+        </div>
+        <p class="trust-desc">
+          <span data-pl>Nowy numer telefonu, godziny urlopu, zmiana ceny — wypełniasz jeden formularz. Wdrażamy w 15 minut. Żadna agencja nie oferuje tego bez automatyzacji — my ją mamy.</span>
+          <span data-en>New phone number, holiday hours, price change — you fill one form. We deploy in 15 minutes. No agency offers this without automation — we have it.</span>
+        </p>
+        <span class="trust-fact">
+          <span data-pl>Plan Standard — 99 PLN/mies.</span>
+          <span data-en>Standard plan — 99 PLN/mo.</span>
+        </span>
+      </div>
+
+      <div class="trust-card">
+        <span class="trust-icon">👁️</span>
+        <div class="trust-title">
+          <span data-pl>Widzisz co robią odwiedzający</span>
+          <span data-en>See what visitors do</span>
+        </div>
+        <p class="trust-desc">
+          <span data-pl>Microsoft Clarity — darmowe heatmapy i nagrania sesji na każdej stronie. Widzisz gdzie klikają, gdzie scrollują, gdzie odchodzą. Zero dodatkowych kosztów.</span>
+          <span data-en>Microsoft Clarity — free heatmaps and session recordings on every site. See where visitors click, scroll, and drop off. Zero extra cost.</span>
+        </p>
+        <span class="trust-fact">
+          <span data-pl>Clarity — bezpłatny, standard na każdej stronie</span>
+          <span data-en>Clarity — free, included on every site</span>
+        </span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how-it-works">
+  <div class="container">
+    <div>
+      <p class="section-meta" style="color:var(--accent);font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.6rem;">
+        <span data-pl>Jak to działa</span>
+        <span data-en>How it works</span>
+      </p>
+      <h2 class="section-headline">
+        <span data-pl>Od kontaktu do gotowej strony<br>w 3 krokach</span>
+        <span data-en>From contact to live website<br>in 3 steps</span>
+      </h2>
+      <p class="lead" style="margin-top:0.75rem;max-width:520px;">
+        <span data-pl>Bez technikaliów ze strony klienta. Jedyne co potrzebujesz — 5 minut na wypełnienie formularza.</span>
+        <span data-en>No technical knowledge needed. All you need is 5 minutes to fill in a form.</span>
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3 class="step-title">
+          <span data-pl>Wypełnij formularz</span>
+          <span data-en>Fill the form</span>
+        </h3>
+        <p class="step-desc">
+          <span data-pl>5 minut. Opowiedz nam o firmie — usługi, kontakt, dlaczego klienci wybierają właśnie Ciebie. Jeśli masz stronę, podaj link — resztą zajmie się AI.</span>
+          <span data-en>5 minutes. Tell us about your business — services, contact info, why clients choose you. If you have a site, share the link — AI handles the rest.</span>
+        </p>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3 class="step-title">
+          <span data-pl>AI tworzy treści</span>
+          <span data-en>AI builds the content</span>
+        </h3>
+        <p class="step-desc">
+          <span data-pl>Na podstawie Twoich odpowiedzi Claude generuje profesjonalne teksty sprzedażowe po polsku. My sprawdzamy i dopasowujemy do branży.</span>
+          <span data-en>Based on your answers, Claude generates professional sales copy in Polish. We review and refine it for your industry.</span>
+        </p>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3 class="step-title">
+          <span data-pl>Strona jest live</span>
+          <span data-en>Site goes live</span>
+        </h3>
+        <p class="step-desc">
+          <span data-pl>Akceptujesz podgląd, łączymy domenę i wdrażamy. Od tej chwili Twoja strona działa — szybka, bezpieczna (SSL), zoptymalizowana pod mobile.</span>
+          <span data-en>You approve the preview, we connect the domain and deploy. From that moment your site is live — fast, secure (SSL), mobile-optimised.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SAMPLE EMAIL ── -->
+<section id="sample-email">
+  <div class="container">
+    <div class="se-grid">
+
+      <div class="se-header">
+        <span class="se-tag">
+          <span data-pl>Zanim cokolwiek kupisz</span>
+          <span data-en>Before you buy anything</span>
+        </span>
+        <h2 class="section-headline">
+          <span data-pl>Najpierw pokazujemy<br>co jest nie tak</span>
+          <span data-en>First we show you<br>what's broken</span>
+        </h2>
+        <p class="lead">
+          <span data-pl>Podajesz link do starej strony — my piszemy konkretnie co traci klientów. Bez oferty, bez presji. Dopiero po Twojej odpowiedzi pokazujemy nowy projekt.</span>
+          <span data-en>You share your current site URL — we write exactly what's losing you clients. No pitch, no pressure. Only after your reply do we show the new design.</span>
+        </p>
+        <div class="se-copy" style="margin-top:1.5rem">
+          <p>
+            <span data-pl>Taki mail dostajesz w ciągu kilku minut od zgłoszenia — jeśli masz aktualną stronę. Treść generuje AI, my sprawdzamy, Ty decydujesz.</span>
+            <span data-en>You receive this email within minutes of submitting — if you have an existing site. AI drafts it, we review it, you decide.</span>
+          </p>
+          <p class="se-note">
+            <span data-pl>* To jest przykład. Twoje issues zależą od konkretnej strony.</span>
+            <span data-en>* This is an example. Your issues depend on your actual site.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="email-mockup" aria-label="Przykładowy email z oceną strony">
+        <div class="em-chrome">
+          <div class="em-dots">
+            <div class="em-dot"></div>
+            <div class="em-dot"></div>
+            <div class="em-dot"></div>
+          </div>
+          <span class="em-title-bar">
+            <span data-pl>Nowa wiadomość</span>
+            <span data-en>New message</span>
+          </span>
+        </div>
+        <div class="em-meta">
+          <div class="em-meta-row">
+            <span class="em-label">
+              <span data-pl>Do:</span>
+              <span data-en>To:</span>
+            </span>
+            <span class="em-value">jan@kowalski-ubezpieczenia.pl</span>
+          </div>
+          <div class="em-meta-row">
+            <span class="em-label">
+              <span data-pl>Temat:</span>
+              <span data-en>Subject:</span>
+            </span>
+            <span class="em-value em-subject">
+              <span data-pl>kowalski-ubezpieczenia.pl — znaleźliśmy 3 rzeczy do poprawy</span>
+              <span data-en>kowalski-insurance.pl — we found 3 things to fix</span>
+            </span>
+          </div>
+        </div>
+        <div class="em-body">
+          <span class="em-hi">
+            <span data-pl>Dzień dobry Janie,</span>
+            <span data-en>Hello Jan,</span>
+          </span>
+          <br><br>
+          <span data-pl>przejrzałem stronę i znalazłem 3 rzeczy<br>które tracą klientów:</span>
+          <span data-en>I reviewed your site and found 3 things<br>that are losing you clients:</span>
+          <br><br>
+          <div class="em-issue">
+            <span class="em-bullet">•</span>
+            <span data-pl>Numer telefonu niewidoczny na telefonie — klient musi szukać</span>
+            <span data-en>Phone number not visible on mobile — clients have to search for it</span>
+          </div>
+          <div class="em-issue">
+            <span class="em-bullet">•</span>
+            <span data-pl>Brak opinii klientów — 73% decyzji zaczyna się od recenzji</span>
+            <span data-en>No client reviews — 73% of buying decisions start with testimonials</span>
+          </div>
+          <div class="em-issue">
+            <span class="em-bullet">•</span>
+            <span data-pl>Strona ładuje się 8 sekund — większość wychodzi po 3</span>
+            <span data-en>Site loads in 8 seconds — most visitors leave after 3</span>
+          </div>
+          <br>
+          <span class="em-footer">
+            <span data-pl>Każdą z nich możemy naprawić.<br>Chcesz zobaczyć jak to mogłoby wyglądać?</span>
+            <span data-en>We can fix every one of these.<br>Want to see what it could look like?</span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── DEMO ── -->
+<section id="demo">
+  <div class="container">
+    <div class="demo-inner">
+      <div>
+        <span class="demo-tag">
+          <span data-pl>Przykład</span>
+          <span data-en>Live example</span>
+        </span>
+        <h2 class="demo-headline">
+          <span data-pl>Zobacz jak wygląda<br>gotowa strona</span>
+          <span data-en>See what a finished<br>site looks like</span>
+        </h2>
+        <p class="demo-desc">
+          <span data-pl>Natalia Wiśniewska — niezależny konsultant finansowy z Krakowa. Strona zbudowana z szablonu w ciągu jednej sesji. Treści wygenerowane przez AI na podstawie 5 minut rozmowy.</span>
+          <span data-en>Natalia Wiśniewska — independent financial consultant from Kraków. Site built from a template in one session. All copy AI-generated from a 5-minute conversation.</span>
+        </p>
+        <ul class="demo-features">
+          <li>
+            <span data-pl>Sekcja hero z tagline i przyciskiem CTA</span>
+            <span data-en>Hero section with tagline and CTA button</span>
+          </li>
+          <li>
+            <span data-pl>3 usługi z opisami skoncentrowanymi na efektach</span>
+            <span data-en>3 services with outcome-focused descriptions</span>
+          </li>
+          <li>
+            <span data-pl>Opinie klientów, bio, dane kontaktowe</span>
+            <span data-en>Client reviews, bio, contact details</span>
+          </li>
+          <li>
+            <span data-pl>W pełni responsywna — działa na każdym urządzeniu</span>
+            <span data-en>Fully responsive — works on every device</span>
+          </li>
+        </ul>
+        <a href="https://oneviz-demo-natalia.netlify.app" target="_blank" rel="noopener" class="btn btn-demo">
+          <span data-pl>Zobacz podgląd demo →</span>
+          <span data-en>View live demo →</span>
+        </a>
+      </div>
+      <div class="demo-mockup">
+        <div class="demo-mockup-chrome">
+          <div class="demo-chrome-dots">
+            <div class="demo-chrome-dot"></div>
+            <div class="demo-chrome-dot"></div>
+            <div class="demo-chrome-dot"></div>
+          </div>
+          <div class="demo-chrome-url">natalia-wisniewska.pl</div>
+        </div>
+        <div class="demo-preview-area">
+          <div class="demo-preview-hero"></div>
+          <div class="demo-preview-lines">
+            <div class="demo-preview-line"></div>
+            <div class="demo-preview-line w80"></div>
+            <div class="demo-preview-line w60"></div>
+          </div>
+          <div class="demo-preview-cards">
+            <div class="demo-preview-card"></div>
+            <div class="demo-preview-card"></div>
+            <div class="demo-preview-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GROWTH PATH ── -->
+<section id="growth">
+  <div class="container">
+    <p class="growth-label">
+      <span data-pl>Strona rośnie razem z biznesem</span>
+      <span data-en>Your site grows with your business</span>
+    </p>
+    <div class="growth-steps">
+      <div class="growth-step">
+        <div class="growth-num">1</div>
+        <div class="growth-name">
+          <span data-pl>One-Page</span>
+          <span data-en>One-Page</span>
+        </div>
+        <div class="growth-price">od 499 PLN</div>
+      </div>
+      <div class="growth-arrow">→</div>
+      <div class="growth-step dim">
+        <div class="growth-num">2</div>
+        <div class="growth-name">
+          <span data-pl>Podstrony usług</span>
+          <span data-en>Service subpages</span>
+        </div>
+        <div class="growth-price">+300 PLN / str.</div>
+      </div>
+      <div class="growth-arrow">→</div>
+      <div class="growth-step dim">
+        <div class="growth-num">3</div>
+        <div class="growth-name">
+          <span data-pl>Blog + lokalne SEO</span>
+          <span data-en>Blog + local SEO</span>
+        </div>
+        <div class="growth-price">od 600 PLN</div>
+      </div>
+      <div class="growth-arrow">→</div>
+      <div class="growth-step dim">
+        <div class="growth-num">4</div>
+        <div class="growth-name">
+          <span data-pl>Automatyczne aktualizacje</span>
+          <span data-en>Automated updates</span>
+        </div>
+        <div class="growth-price">199 PLN/mies.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROGRAM PILOTAŻOWY ── -->
+<section id="program">
+  <div class="container">
+    <div class="program-header">
+      <span class="program-tag">
+        <span data-pl>Oferta limitowana</span>
+        <span data-en>Limited offer</span>
+      </span>
+      <h2 class="section-headline">
+        <span data-pl>Program Pilotażowy</span>
+        <span data-en>Pilot Program</span>
+      </h2>
+      <p class="lead">
+        <span data-pl>Pierwsze 5 firm dostaje pakiet Growth za ułamek ceny.<br>W zamian — opinia i 10 minut rozmowy zwrotnej.</span>
+        <span data-en>First 5 businesses get the Growth package at a fraction of the price.<br>In return — a testimonial and 10-minute feedback call.</span>
+      </p>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-badge">
+        <span data-pl>Program Pilotażowy — pierwsze 5 firm</span>
+        <span data-en>Pilot Program — first 5 businesses</span>
+      </div>
+
+      <div class="price-row">
+        <span class="price-main">499 PLN</span>
+        <span class="price-old">1 490 PLN</span>
+      </div>
+      <p class="price-desc">
+        <span data-pl>Jednorazowa płatność. 50% teraz, 50% przed wdrożeniem.</span>
+        <span data-en>One-time payment. 50% now, 50% before launch.</span>
+      </p>
+
+      <ul class="pricing-features">
+        <li>
+          <span data-pl>Wszystko z pakietu Growth (mapa, opinie, WhatsApp, Analytics)</span>
+          <span data-en>Everything in Growth (map, reviews, WhatsApp, Analytics)</span>
+        </li>
+        <li>
+          <span data-pl>Strona gotowa w 5–10 dni roboczych</span>
+          <span data-en>Site ready in 5–10 business days</span>
+        </li>
+        <li>
+          <span data-pl>1 runda poprawek w cenie</span>
+          <span data-en>1 revision round included</span>
+        </li>
+        <li>
+          <span data-pl>Treści wygenerowane przez AI — nie musisz pisać</span>
+          <span data-en>AI-generated copy — no writing needed</span>
+        </li>
+        <li>
+          <span data-pl>Hosting na Netlify (szybki, bezpieczny, darmowy SSL)</span>
+          <span data-en>Hosted on Netlify (fast, secure, free SSL)</span>
+        </li>
+      </ul>
+
+      <div class="pricing-divider"></div>
+
+      <p class="pricing-conditions">
+        <strong data-pl>Warunki:</strong>
+        <strong data-en>Conditions:</strong>
+        <span data-pl> zgoda na pokazanie w portfolio · krótka opinia po wdrożeniu · 10-minutowa rozmowa zwrotna</span>
+        <span data-en> portfolio consent · short testimonial after launch · 10-minute feedback call</span>
+      </p>
+
+      <div class="slots-indicator">
+        <div class="slot-dot"></div>
+        <span data-pl>Zostało 5 miejsc</span>
+        <span data-en>5 spots remaining</span>
+      </div>
+
+      <a href="#lead-form" class="btn btn-primary btn-program">
+        <span data-pl>Zgłoś się →</span>
+        <span data-en>Get started →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-header">
+      <span class="faq-tag">FAQ</span>
+      <h2 class="section-headline">
+        <span data-pl>Najczęstsze pytania</span>
+        <span data-en>Frequently asked questions</span>
+      </h2>
+      <p class="lead">
+        <span data-pl>Reszta wyjaśnia się podczas rozmowy — dlatego po przesłaniu formularza oddzwaniamy.</span>
+        <span data-en>Everything else gets answered on the call — that's why we ring you back after you submit.</span>
+      </p>
+    </div>
+
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span data-pl>Czy muszę mieć gotowe zdjęcia i teksty?</span>
+          <span data-en>Do I need to have photos and copy ready?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <span data-pl>Nie. Teksty generuje AI na podstawie formularza — sprawdzamy i dopasowujemy do branży. Zdjęcia dobieramy ze stocków pasujących do Twojej działalności. Jeśli masz własne — tym lepiej, ale nie jest to wymagane.</span>
+          <span data-en>No. AI generates copy based on your form answers — we review and refine for your industry. Photos are sourced from stock libraries matching your sector. If you have your own — great, but it's not required.</span>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span data-pl>Jak szybko mogę zmienić numer telefonu lub cennik?</span>
+          <span data-en>How quickly can I update my phone number or pricing?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <span data-pl>W planie Standard (99 PLN/mies.) — w ciągu 15 minut od przesłania formularza zmian. Wypełniasz jeden formularz, my wdrażamy. Nie musisz pisać do nas na WhatsApp ani czekać na odpowiedź.</span>
+          <span data-en>On the Standard plan (99 PLN/mo.) — within 15 minutes of submitting the update form. You fill in one form, we deploy. No WhatsApp messages, no waiting for a reply.</span>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span data-pl>Co się dzieje ze stroną po roku?</span>
+          <span data-en>What happens to my site after a year?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <span data-pl>Strona działa dopóki opłacasz hosting (od 49 PLN/mies.). Możesz też w każdej chwili wyprowadzić kod — wtedy przeniesiesz ją na własny serwer. Nie jesteś zablokowany na zawsze.</span>
+          <span data-en>The site stays live as long as you pay for hosting (from 49 PLN/mo.). You can also take the code at any point and move it to your own server. You're not locked in forever.</span>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span data-pl>Czy strona będzie widoczna w Google?</span>
+          <span data-en>Will my site show up in Google?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <span data-pl>Tak. Każda strona ma poprawne meta tagi, tytuł i opis zoptymalizowane pod lokalne frazy (np. "doradca finansowy Kraków"). W pakiecie Growth dodajemy Google Analytics i Search Console — widzisz ile osób trafia na stronę i skąd.</span>
+          <span data-en>Yes. Every site gets proper meta tags, title and description optimised for local phrases (e.g. "financial advisor Kraków"). The Growth package includes Google Analytics and Search Console — you see exactly how many people visit and where from.</span>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span data-pl>Mam już stronę — czy muszę ją kasować?</span>
+          <span data-en>I already have a website — do I need to delete it?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <span data-pl>Nie. Podajesz link do starej strony w formularzu — AI wyciągnie z niej dane kontaktowe, usługi i opisy. Zaczynamy od tego co już masz, poprawiamy resztę. Stara strona działa do momentu aż nowa jest gotowa.</span>
+          <span data-en>No. Share your current site URL in the form — AI extracts your contact details, services and descriptions from it. We start from what you already have and improve the rest. Your old site stays live until the new one is ready.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">One<span>Viz</span></div>
+      <p class="footer-contact">
+        <a href="mailto:kontakt@oneviz.pl">kontakt@oneviz.pl</a>
+      </p>
+      <p class="footer-copy">© 2025 OneViz</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ── STICKY MOBILE CTA ── -->
+<div class="sticky-cta" aria-label="Szybki kontakt">
+  <a href="https://wa.me/48000000000" target="_blank" rel="noopener" class="sticky-wa btn">💬 WhatsApp</a>
+  <a href="tel:+48000000000" class="sticky-call btn">📞 <span data-pl>Zadzwoń</span><span data-en>Call</span></a>
+</div>
+
+<script>
+  // ── Language toggle ──
+  (function() {
+    var STORAGE_KEY = 'oneviz-lang';
+    var body = document.body;
+    var btn = document.getElementById('lang-toggle');
+    var saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved === 'en') body.classList.add('lang-en');
+
+    btn.addEventListener('click', function() {
+      var isEn = body.classList.toggle('lang-en');
+      localStorage.setItem(STORAGE_KEY, isEn ? 'en' : 'pl');
+    });
+
+    // Keep <title> in sync
+    document.querySelectorAll('title[data-pl]').forEach(function(el) {
+      // handled by attribute pattern; title not inside body so skip
+    });
+  })();
+
+  // ── FAQ accordion ──
+  document.querySelectorAll('.faq-question').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = btn.closest('.faq-item');
+      var isOpen = item.classList.contains('active');
+      // Close all
+      document.querySelectorAll('.faq-item').forEach(function(i) {
+        i.classList.remove('active');
+        i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+      // Open clicked (unless it was already open)
+      if (!isOpen) {
+        item.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ── Smooth scroll for anchor CTAs ──
+  document.querySelectorAll('a[href="#lead-form"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.getElementById('lead-form');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Focus first input after scroll
+      setTimeout(function() {
+        var first = target.querySelector('input');
+        if (first) first.focus();
+      }, 600);
+    });
+  });
+</script>
+</body>
+</html>
