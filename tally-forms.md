@@ -1,15 +1,17 @@
 # Tally Forms — Build Spec
 
 Two forms. Build in Tally, share via URL. Free tier sufficient unless photo uploads needed (paid).
+Progress bar: enable in form settings → show as percentage (not "3 of 8") → more satisfying movement.
 
 ---
 
 ## FORM 1 — Formularz: Dane do strony
-*Onboarding form. Sent after deposit paid. Multi-step — each section = separate page.*
+*Onboarding form. Sent after deposit paid. Multi-step — 8 pages.*
 
 ---
 
 ### PAGE 1 — Witaj
+*No progress bar on this page — it's the cover screen.*
 
 **[STATEMENT]**
 > Wypełnienie zajmuje około 5 minut — lub nawet 1 minutę, jeśli masz już stronę.
@@ -18,7 +20,7 @@ Two forms. Build in Tally, share via URL. Free tier sufficient unless photo uplo
 
 ---
 
-### PAGE 2 — Istniejąca strona
+### PAGE 2 — Istniejąca strona (12%)
 
 **[MULTIPLE CHOICE]** "Czy masz już stronę internetową?"
 Required: YES
@@ -47,38 +49,12 @@ Placeholder: np. "nowy numer telefonu", "inne usługi", "dodaj WhatsApp"
 Conditional: show if existing site = "Tak"
 
 **[STATEMENT]** *(conditional: show if existing site = "Tak")*
-> Jeśli zaznaczyłeś wszystko i nie ma zmian — możesz pominąć resztę formularza i kliknąć "Wyślij".
+> Jeśli zaznaczyłeś wszystko i nie ma zmian — możesz pominąć resztę i kliknąć "Wyślij".
 
 ---
 
-### PAGE 3 — Cel strony i kontakt podczas projektu
-
-**[MULTIPLE CHOICE]** "Jaki jest główny cel strony — co ma zrobić odwiedzający?"
-Required: YES
-Options:
-- Zadzwonić do mnie
-- Napisać na WhatsApp
-- Wysłać formularz kontaktowy
-- Umówić spotkanie
-- Przyjść do lokalu
-
-*Determines hero layout, sticky buttons, and mobile CTA.*
-
-**[MULTIPLE CHOICE]** "Jak preferujesz kontakt podczas realizacji projektu?"
-Required: YES
-Options:
-- WhatsApp
-- Telefon
-- Email
-
-**[SHORT TEXT]** "Numer WhatsApp (jeśli inny niż kontaktowy)"
-Required: NO
-Placeholder: +48 123 456 789
-Conditional: show if communication = "WhatsApp"
-
----
-
-### PAGE 4 — Dane kontaktowe
+### PAGE 3 — Twoje dane (25%)
+*Contact info + CTA + communication preference — all operational, one page.*
 
 **[SHORT TEXT]** "Imię i nazwisko lub nazwa firmy"
 Required: YES
@@ -104,13 +80,34 @@ Required: NO
 Placeholder: ul. Floriańska 12, 31-021 Kraków
 *We generate the map embed — you just provide the address.*
 
+**[MULTIPLE CHOICE]** "Jaki jest główny cel strony — co ma zrobić odwiedzający?"
+Required: YES
+Options:
+- Zadzwonić do mnie
+- Napisać na WhatsApp
+- Wysłać formularz kontaktowy
+- Umówić spotkanie
+- Przyjść do lokalu
+
+**[MULTIPLE CHOICE]** "Jak preferujesz kontakt podczas realizacji projektu?"
+Required: YES
+Options:
+- WhatsApp
+- Telefon
+- Email
+
+**[SHORT TEXT]** "Numer WhatsApp (jeśli inny niż kontaktowy)"
+Required: NO
+Placeholder: +48 123 456 789
+Conditional: show if communication = "WhatsApp"
+
 ---
 
-### PAGE 5 — Twoje usługi
+### PAGE 4 — Twoje usługi (37%)
 
 **[STATEMENT]**
 > 3 usługi, na których zarabiasz najwięcej.
-> Dla każdej usługi odpowiedz na 3 pytania: Dla kogo? Jaki problem rozwiązujesz? Jaki efekt dostaje klient?
+> Dla każdej odpowiedz: Dla kogo? Jaki problem rozwiązujesz? Jaki efekt dostaje klient?
 > Możesz pisać hasłowo — my przygotujemy tekst.
 
 **[SHORT TEXT]** "Usługa 1 — nazwa"
@@ -137,7 +134,7 @@ Placeholder: Dla kogo: ... / Problem: ... / Efekt: ...
 
 ---
 
-### PAGE 6 — Dlaczego klienci wybierają właśnie Ciebie?
+### PAGE 5 — Dlaczego klienci wybierają właśnie Ciebie? (50%)
 
 **[STATEMENT]**
 > 3 konkretne powody. Unikaj ogólników ("jakość", "doświadczenie") — wszyscy to piszą.
@@ -155,7 +152,8 @@ Required: YES
 
 ---
 
-### PAGE 7 — O Tobie
+### PAGE 6 — O Tobie i opinie (62%)
+*Bio + reviews on one page — both personal, both optional-ish.*
 
 **[LONG TEXT]** "Krótkie bio — opisz w punktach:"
 Required: NO
@@ -163,7 +161,7 @@ Placeholder: • Od którego roku działasz
 • Gdzie pracowałeś wcześniej
 • Specjalizacja / nisza
 • Dla kogo głównie pracujesz
-Jeśli nie masz gotowego tekstu — napisz hasłowo, my przygotujemy.
+Jeśli nie masz tekstu — napisz hasłowo, my przygotujemy.
 
 **[SHORT TEXT]** "Od którego roku działasz?"
 Required: NO
@@ -173,12 +171,8 @@ Placeholder: 2012
 Required: NO
 Placeholder: 200+
 
----
-
-### PAGE 8 — Opinie klientów
-
 **[STATEMENT]**
-> Opcjonalne — jeśli nie masz, możemy pominąć lub użyć anonimowych przykładów.
+> Opinie klientów — opcjonalne. Jeśli nie masz, możemy pominąć lub użyć anonimowych przykładów.
 
 **[LONG TEXT]** "Opinia 1 — treść"
 Required: NO
@@ -196,9 +190,8 @@ Required: NO
 
 ---
 
-### PAGE 9 — Social media i kontakt dodatkowy
-
-*All optional — leave blank if not used*
+### PAGE 7 — Linki i materiały (75%)
+*Social media + photos + domain — all "assets you hand over".*
 
 **[URL]** "Facebook"
 Required: NO
@@ -213,10 +206,6 @@ Required: NO
 **[SHORT TEXT]** "WhatsApp — numer do przycisku kontaktowego"
 Required: NO
 Placeholder: +48 123 456 789
-
----
-
-### PAGE 10 — Zdjęcia i domena
 
 **[MULTIPLE CHOICE]** "Zdjęcie profilowe"
 Required: YES
@@ -246,7 +235,8 @@ Conditional: show if domain = "Mam już domenę"
 
 ---
 
-### PAGE 11 — Ostatnie pytania
+### PAGE 8 — Ostatnie pytania (87%)
+*Constraints + approver + slug + scope acceptance + consents — all end-of-form housekeeping.*
 
 **[LONG TEXT]** "Czy jest coś czego NIE chcesz na stronie?"
 Required: NO
@@ -259,14 +249,10 @@ Options:
 - Ja i wspólnik / partner
 - Inna osoba (marketing, rodzina)
 
-**[SHORT TEXT]** "Nazwa projektu do URL (slug)"
+**[SHORT TEXT]** "Nazwa projektu do URL"
 Required: NO
-Placeholder: kowalski-ubezpieczenia / salon-kwiatkowski
-*Used for folder naming, repo, and Netlify URL. We'll suggest one if left blank.*
-
----
-
-### PAGE 12 — Zgody
+Placeholder: kowalski-ubezpieczenia-krakow
+*Format: nazwisko-branża-miasto. Zostaw puste — my zaproponujemy.*
 
 **[STATEMENT]**
 > Standardowy czas realizacji: 5–10 dni roboczych od otrzymania wszystkich materiałów.
@@ -291,7 +277,7 @@ Option: Zgadzam się na pokazanie tej strony w portfolio OneViz
 
 ---
 
-### THANK YOU PAGE
+### THANK YOU PAGE (100%)
 
 > Dziękujemy! Wrócimy do Ciebie w ciągu 24 godzin z potwierdzeniem i harmonogramem.
 > Pytania? Napisz na WhatsApp: [Twój numer]
@@ -370,24 +356,25 @@ Placeholder: przed 15 lipca
 
 ## Tally Setup Notes
 
+- **Progress bar:** enable → show as % not "X of 8" → Settings → Progress bar → Percentage
+- **Cover page:** Page 1 (Witaj) should be the form cover screen, not counted in progress
 - **Workspace:** "OneViz" — both forms live here
 - **Photos:** handled outside Tally (WhatsApp / email) — stays on free plan
 - **Notifications:** email alert to yourself on every submission
 - **Branding:** logo + accent color in Tally settings
 - **Sharing:** Form 1 URL sent after deposit; Form 2 URL sent to all active maintenance clients
-- **Responses:** export CSV or connect Google Sheets via Zapier when you have 5+ clients
 
 ---
 
 ## Variable Mapping (internal — for template fill)
 
 ```
-PAGE 3  → CTA_PRIMARY (call/whatsapp/form), meta for layout choice
-PAGE 4  → FULL_NAME, TITLE, PHONE, EMAIL, CITY, GOOGLE_MAPS_EMBED (generated from address)
-PAGE 5  → SERVICE_1_TITLE/DESC, SERVICE_2_TITLE/DESC, SERVICE_3_TITLE/DESC
-PAGE 6  → WHY_1_TITLE/DESC, WHY_2_TITLE/DESC, WHY_3_TITLE/DESC
-PAGE 7  → BIO_SHORT, BIO_LONG, EXPERIENCE_YEARS (calculated from "since year"), CLIENTS_COUNT
-PAGE 8  → REVIEW_1_TEXT/AUTHOR, REVIEW_2_TEXT/AUTHOR
-PAGE 9  → FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL, WHATSAPP_NUMBER
+PAGE 3  → FULL_NAME, TITLE, PHONE, EMAIL, CITY, GOOGLE_MAPS_EMBED (generated from address)
+          CTA_PRIMARY (from goal choice), preferred contact channel (operational)
+PAGE 4  → SERVICE_1_TITLE/DESC, SERVICE_2_TITLE/DESC, SERVICE_3_TITLE/DESC
+PAGE 5  → WHY_1_TITLE/DESC, WHY_2_TITLE/DESC, WHY_3_TITLE/DESC
+PAGE 6  → BIO_SHORT, BIO_LONG, EXPERIENCE_YEARS (calculated from "since year"),
+          CLIENTS_COUNT, REVIEW_1_TEXT/AUTHOR, REVIEW_2_TEXT/AUTHOR
+PAGE 7  → FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL, WHATSAPP_NUMBER, PHOTO_URL
 PAGE 2  → if URL provided → run scraper/scrape.js first, then override with form delta
 ```
