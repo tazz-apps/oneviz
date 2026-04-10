@@ -1,0 +1,5 @@
+.claude/
+scraper/last-preview.html
+scraper/last-site-preview.html
+node_modules/
+.env
