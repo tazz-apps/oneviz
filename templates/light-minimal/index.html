@@ -141,6 +141,18 @@
     .contact-map{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
     .contact-map iframe{width:100%;height:320px;display:block}
 
+    /* ===== SERVICE PRICE ===== */
+    .service-price{display:inline-block;margin-top:16px;font-size:13px;font-weight:700;color:var(--accent);background:rgba(30,58,95,.07);border:1px solid var(--border);padding:4px 14px;border-radius:100px;letter-spacing:.02em}
+
+    /* ===== QUOTE ===== */
+    .quote-block{max-width:800px;margin:0 auto;text-align:center}
+    .quote-text{font-size:clamp(20px,3vw,30px);font-weight:600;line-height:1.45;color:var(--text);font-style:italic;position:relative;padding:0 40px}
+    .quote-text::before{content:'\201C';position:absolute;left:0;top:-.1em;font-size:80px;color:var(--accent);opacity:.25;line-height:1;font-style:normal;font-family:Georgia,serif}
+    .quote-author{display:block;margin-top:20px;font-size:14px;color:var(--text-2);font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+
+    /* ===== PROCESS ===== */
+    .process-steps{white-space:pre-line;font-size:17px;color:var(--text-2);line-height:2.2;max-width:640px}
+
     /* ===== FOOTER ===== */
     .footer{background:var(--accent);padding:32px 0}
     .footer-inner{max-width:var(--max-w);margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -245,16 +257,19 @@
         <p class="service-num">01</p>
         <h3 class="service-title">{{SERVICE_1_TITLE}}</h3>
         <p class="service-desc">{{SERVICE_1_DESC}}</p>
+        <p class="service-price">{{SERVICE_1_PRICE}}</p>
       </div>
       <div class="service-card">
         <p class="service-num">02</p>
         <h3 class="service-title">{{SERVICE_2_TITLE}}</h3>
         <p class="service-desc">{{SERVICE_2_DESC}}</p>
+        <p class="service-price">{{SERVICE_2_PRICE}}</p>
       </div>
       <div class="service-card">
         <p class="service-num">03</p>
         <h3 class="service-title">{{SERVICE_3_TITLE}}</h3>
         <p class="service-desc">{{SERVICE_3_DESC}}</p>
+        <p class="service-price">{{SERVICE_3_PRICE}}</p>
       </div>
     </div>
   </div>
@@ -273,6 +288,18 @@
       <div class="about-photo" data-type="photo">
         <img src="{{PHOTO_URL}}" alt="{{FULL_NAME}}" loading="lazy" />
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE — hidden by JS if PERSONAL_QUOTE is empty -->
+<section class="section" id="quote">
+  <div class="container">
+    <div class="quote-block">
+      <blockquote>
+        <p class="quote-text">{{PERSONAL_QUOTE}}</p>
+        <cite class="quote-author">{{QUOTE_AUTHOR}}</cite>
+      </blockquote>
     </div>
   </div>
 </section>
@@ -301,6 +328,17 @@
         <p class="why-desc">{{WHY_3_DESC}}</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- PROCESS — hidden by JS if PROCESS_STEPS is empty -->
+<section class="section section--alt" id="process">
+  <div class="container">
+    <div class="section-header">
+      <p class="label">Jak pracuję</p>
+      <h2 class="title">{{PROCESS_TITLE}}</h2>
+    </div>
+    <div class="process-steps">{{PROCESS_STEPS}}</div>
   </div>
 </section>
 
@@ -401,6 +439,22 @@
         if (img.closest('.about-photo')) document.getElementById('aboutGrid').classList.add('no-photo');
       }
     });
+    // Service prices
+    document.querySelectorAll('.service-price').forEach(p => {
+      if (!p.textContent.trim() || p.textContent.includes('{{')) p.style.display = 'none';
+    });
+    // Quote section
+    const quoteSection = document.getElementById('quote');
+    if (quoteSection) {
+      const qt = quoteSection.querySelector('.quote-text');
+      if (!qt || !qt.textContent.trim() || qt.textContent.includes('{{')) quoteSection.style.display = 'none';
+    }
+    // Process section
+    const processSection = document.getElementById('process');
+    if (processSection) {
+      const ps = processSection.querySelector('.process-steps');
+      if (!ps || !ps.textContent.trim() || ps.textContent.includes('{{')) processSection.style.display = 'none';
+    }
     document.querySelectorAll('img').forEach(img => {
       img.addEventListener('error', function () {
         const block = this.closest('[data-type="photo"]');

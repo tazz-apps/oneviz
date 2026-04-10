@@ -121,6 +121,10 @@ Placeholder: Doradztwo kredytowe
 Required: YES
 Placeholder: Właściciele firm → kredyt w 2 tygodnie
 
+**[SHORT TEXT]** "Usługa 1 — cena (opcjonalnie)"
+Required: NO
+Placeholder: od 300 PLN / 150 PLN/h / wycena indywidualna
+
 **[SHORT TEXT]** "Usługa 2 — nazwa"
 Required: YES
 
@@ -128,12 +132,20 @@ Required: YES
 Required: YES
 Placeholder: Osoby prywatne → najlepsza oferta z 20 banków
 
+**[SHORT TEXT]** "Usługa 2 — cena (opcjonalnie)"
+Required: NO
+Placeholder: od 300 PLN / 150 PLN/h / wycena indywidualna
+
 **[SHORT TEXT]** "Usługa 3 — nazwa"
 Required: YES
 
 **[SHORT TEXT]** "Usługa 3 — dla kogo i efekt"
 Required: YES
 Placeholder: Freelancerzy → kredyt bez umowy o pracę
+
+**[SHORT TEXT]** "Usługa 3 — cena (opcjonalnie)"
+Required: NO
+Placeholder: od 300 PLN / 150 PLN/h / wycena indywidualna
 
 ---
 
@@ -155,6 +167,25 @@ Required: YES
 
 ---
 
+### PAGE 5B — Jak pracujesz (opcjonalnie) (56%)
+*Process description — skip entirely if not applicable. Tradespeople, craftspeople, consultants benefit most.*
+
+**[STATEMENT]**
+> Opcjonalnie — jeśli Twoja praca przebiega według konkretnych etapów, opisz je tutaj.
+> Przykład: "1. Ocena noża → 2. Ostrzenie zgrubne → 3. Finiszowanie → 4. Polerowanie → 5. Test"
+> Możesz pominąć tę stronę jeśli nie dotyczy.
+
+**[SHORT TEXT]** "Tytuł sekcji (opcjonalnie)"
+Required: NO
+Placeholder: Jak pracuję / 5 etapów realizacji / Jak wygląda współpraca
+
+**[LONG TEXT]** "Etapy pracy — krok po kroku (opcjonalnie)"
+Required: NO
+Placeholder: 1. Ocena i wycena\n2. Realizacja\n3. Odbiór i korekty\n4. Wdrożenie
+*Napisz po jednym etapie w linii. My dopracujemy opis.*
+
+---
+
 ### PAGE 6 — O Tobie i opinie (62%)
 *Bio + reviews on one page — both personal, both optional-ish.*
 
@@ -173,6 +204,16 @@ Placeholder: 2012
 **[SHORT TEXT]** "Liczba obsłużonych klientów"
 Required: NO
 Placeholder: 200+
+
+**[SHORT TEXT]** "Ulubiony cytat lub motto (opcjonalnie)"
+Required: NO
+Placeholder: "Jeśli twój nóż nie tnie — to znaczy, że czas na Pana Mnie." / cytat z książki / własne motto
+
+**[SHORT TEXT]** "Autor cytatu (opcjonalnie)"
+Required: NO
+Placeholder: Abraham Lincoln / własne
+
+---
 
 **[STATEMENT]**
 > Opinie klientów — opcjonalne. Jeśli nie masz, możemy pominąć lub użyć anonimowych przykładów.
@@ -374,10 +415,12 @@ Placeholder: przed 15 lipca
 ```
 PAGE 3  → FULL_NAME, TITLE, PHONE, EMAIL, CITY, GOOGLE_MAPS_EMBED (generated from address)
           CTA_PRIMARY (from goal choice), preferred contact channel (operational)
-PAGE 4  → SERVICE_1_TITLE/DESC, SERVICE_2_TITLE/DESC, SERVICE_3_TITLE/DESC
+PAGE 4  → SERVICE_1_TITLE/DESC/PRICE, SERVICE_2_TITLE/DESC/PRICE, SERVICE_3_TITLE/DESC/PRICE
 PAGE 5  → WHY_1_TITLE/DESC, WHY_2_TITLE/DESC, WHY_3_TITLE/DESC
+PAGE 5B → PROCESS_TITLE, PROCESS_STEPS
 PAGE 6  → BIO_SHORT, BIO_LONG, EXPERIENCE_YEARS (calculated from "since year"),
-          CLIENTS_COUNT, REVIEW_1_TEXT/AUTHOR, REVIEW_2_TEXT/AUTHOR
+          CLIENTS_COUNT, PERSONAL_QUOTE, QUOTE_AUTHOR,
+          REVIEW_1_TEXT/AUTHOR, REVIEW_2_TEXT/AUTHOR
 PAGE 7  → FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL, WHATSAPP_NUMBER, PHOTO_URL
 PAGE 2  → if URL provided → run scraper/scrape.js first, then override with form delta
 ```

@@ -10,7 +10,8 @@
  *   4. Create Netlify site + deploy
  *   5. Print preview URL + cold email draft
  *
- * Requires env vars: ANTHROPIC_API_KEY, NETLIFY_API_TOKEN
+ * Requires env vars: NETLIFY_API_TOKEN + at least one of GROQ_API_KEY, ANTHROPIC_API_KEY
+ * LLM order: Groq (free tier, primary) → Claude (fallback)
  */
 
 const https = require("https");
@@ -22,22 +23,28 @@ const crypto = require("crypto");
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const GROQ_API_KEY      = process.env.GROQ_API_KEY;
 const NETLIFY_API_TOKEN = process.env.NETLIFY_API_TOKEN;
 
 const args = process.argv.slice(2);
 const targetUrl = args.find((a) => !a.startsWith("--"));
 const styleFlag = args.find((a) => a.startsWith("--style="));
 const style = styleFlag ? styleFlag.split("=")[1] : "dark-pro";
+const DEPLOY = args.includes("--deploy"); // explicit opt-in — costs Netlify credits
 
 const VALID_STYLES = ["dark-pro", "light-minimal", "bold-color"];
 
 if (!targetUrl) {
-  console.error("Usage: node scrape.js <url> [--style dark-pro|light-minimal|bold-color]");
+  console.error("Usage: node scrape.js <url> [--style dark-pro|light-minimal|bold-color] [--deploy]");
   process.exit(1);
 }
 
-if (!ANTHROPIC_API_KEY || !NETLIFY_API_TOKEN) {
-  console.error("Missing env vars: ANTHROPIC_API_KEY and/or NETLIFY_API_TOKEN");
+if (DEPLOY && !NETLIFY_API_TOKEN) {
+  console.error("Missing env var: NETLIFY_API_TOKEN (required for --deploy)");
+  process.exit(1);
+}
+if (!GROQ_API_KEY && !ANTHROPIC_API_KEY) {
+  console.error("Missing env vars: set GROQ_API_KEY (free tier) and/or ANTHROPIC_API_KEY (fallback)");
   process.exit(1);
 }
 
@@ -78,7 +85,7 @@ function request(url, options = {}, body = null) {
         const chunks = [];
         res.on("data", (c) => chunks.push(c));
         res.on("end", () =>
-          resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") })
+          resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks).toString("utf8") })
         );
       }
     );
@@ -107,6 +114,83 @@ function apiPut(url, headers, rawBuffer) {
 
 const MIN_CONTENT_LENGTH = 800; // below this = JS-rendered or empty shell
 
+function htmlToText(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/?(p|div|section|article|header|footer|li|h[1-6]|tr|td|th)[^>]*>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function preExtract(html) {
+  const found = {};
+
+  // Phone — priority chain (stops at first hit):
+  // 1. tel: href attribute — most reliable, always intentional
+  const telHref = html.match(/href=["']tel:([+\d\s\-()\u00a0]{7,20})["']/i);
+  if (telHref) {
+    found.PHONE = telHref[1].replace(/[\u00a0]/g, " ").trim();
+  } else {
+    // 2. aria-label on buttons (WordPress/Elementor pattern: aria-label="791 382 022")
+    const ariaMatch = html.match(/aria-label=["'](\+?[\d][\d\s\-]{6,18}\d)["']/);
+    if (ariaMatch && /\d{3}/.test(ariaMatch[1])) {
+      found.PHONE = ariaMatch[1].trim();
+    } else {
+      // 3. Schema.org / JSON-LD telephone field
+      const schemaMatch = html.match(/"telephone"\s*:\s*"([^"]+)"/i);
+      if (schemaMatch) {
+        found.PHONE = schemaMatch[1].trim();
+      } else {
+        // 4. Text regex — REQUIRES separator between groups to avoid partial filename matches
+        //    e.g. "1280-7465485" in og:image won't match because 280-746 needs another sep
+        const phoneMatch = html.match(/(?<!\d)(\+48[\s-])?(\d{3}[\s-]\d{3}[\s-]\d{3})(?!\d)/);
+        if (phoneMatch) found.PHONE = phoneMatch[0].trim();
+      }
+    }
+  }
+
+  // Email
+  const emailMatch = html.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+  if (emailMatch) found.EMAIL = emailMatch[0];
+
+  // NIP (hint for LLM to identify correct business name)
+  const nipMatch = html.match(/NIP[:\s]*([0-9]{3}[-\s]?[0-9]{3}[-\s]?[0-9]{2}[-\s]?[0-9]{2}|[0-9]{10})/i);
+  if (nipMatch) found._nip = nipMatch[1].replace(/[\s-]/g, "");
+
+  // Title tag, OG title, H1 — hints for business name
+  const titleMatch = html.match(/<title[^>]*>([^<]{3,80})<\/title>/i);
+  if (titleMatch) found._title = titleMatch[1].trim();
+
+  const ogMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']{3,80})["']/i)
+    || html.match(/<meta[^>]+content=["']([^"']{3,80})["'][^>]+property=["']og:title["']/i);
+  if (ogMatch) found._ogTitle = ogMatch[1].trim();
+
+  const h1Match = html.match(/<h1[^>]*>([^<]{3,80})<\/h1>/i);
+  if (h1Match) found._h1 = h1Match[1].replace(/<[^>]+>/g, "").trim();
+
+  return found;
+}
+
+function detectPlatform(headers, html) {
+  const allHeaders = Object.entries(headers).map(([k, v]) => `${k}: ${v}`).join("\n").toLowerCase();
+  const htmlLow = html.slice(0, 5000).toLowerCase();
+
+  if (allHeaders.includes("x-wix-request-id") || htmlLow.includes("wixstatic.com")) return "Wix";
+  if (allHeaders.includes("server: squarespace") || htmlLow.includes("this is squarespace") || htmlLow.includes("squarespace-cdn.com")) return "Squarespace";
+  if (htmlLow.includes("webwave.me") || htmlLow.includes("webwave.pl")) return "WebWave";
+  if (htmlLow.includes("hostinger.com/templates") || htmlLow.includes("zyro.com")) return "Hostinger";
+  if (htmlLow.includes("shoper.pl") || htmlLow.includes("shopercloud")) return "Shoper";
+  return null;
+}
+
 async function fetchSite(url) {
   console.log(`\n[1/5] Fetching ${url} ...`);
   const res = await request(url);
@@ -122,11 +206,31 @@ async function fetchSite(url) {
     );
   }
 
-  // Trim to ~8000 chars to stay within Claude context and reduce cost
-  return res.body.slice(0, 8000);
+  // Detect platform from headers + HTML
+  const platform = detectPlatform(res.headers, res.body);
+  if (platform) console.log(`      Platform:    ${platform}`);
+
+  const pre = preExtract(res.body);
+  const preFound = Object.keys(pre).filter(k => !k.startsWith("_")).join(", ") || "none";
+  console.log(`      Pre-extracted: ${preFound}`);
+
+  // Early exit if no contact data found — don't waste an LLM call
+  if (!pre.PHONE && !pre.EMAIL) {
+    const reason = platform
+      ? `${platform} detected — content is JS-rendered, no static contact data`
+      : "no contact data found in raw HTML — site may be JS-rendered or contact info on a subpage";
+    throw new Error(`NO_CONTACT: ${reason}. Run manually with business name, phone, and email instead.`);
+  }
+
+  // Strip HTML to plain text — dramatically reduces noise, lets LLM see actual content
+  const text = htmlToText(res.body);
+  const sliced = text.slice(0, 7000); // keeps classify + extract under Groq's 6000 TPM limit
+  console.log(`      Text after strip: ${text.length} chars → sending ${sliced.length}`);
+
+  return { sliced, pre };
 }
 
-// ── Step 2: Claude API — extract business data ────────────────────────────────
+// ── Step 2: LLM extraction — Gemini (primary) → Claude (fallback) ────────────
 
 const EXTRACTION_PROMPT = `You are a Senior Direct-Response Copywriter and UX Designer specializing in Polish local businesses.
 Your task: transform raw, often messy data from an existing business website into modern, conversion-focused content for a one-page website.
@@ -143,7 +247,7 @@ Return ONLY a valid JSON object with these keys (use empty string "" if not foun
 
 {
   "FULL_NAME": "owner's full name or business name",
-  "TITLE": "job title — short, specific (e.g. 'Doradca kredytowy', not 'Specjalista')",
+  "TITLE": "job title — describes what they DO, not what they advise on. For tradespeople use craft titles (e.g. 'Mistrz ostrzenia noży', 'Stolarz', 'Elektryk'). For professionals use role titles (e.g. 'Doradca kredytowy', 'Kosmetolog'). Never use 'Doradca' for a craftsman.",
   "TAGLINE": "hero headline — max 8 words, concrete benefit, location if relevant",
   "CITY": "city name only",
   "PHONE": "phone in tel: format e.g. +48123456789",
@@ -169,6 +273,13 @@ Return ONLY a valid JSON object with these keys (use empty string "" if not foun
   "REVIEW_1_AUTHOR": "First name + role/context e.g. 'Marek K., właściciel firmy'",
   "REVIEW_2_TEXT": "testimonial quote or empty",
   "REVIEW_2_AUTHOR": "author or empty",
+  "SERVICE_1_PRICE": "price for service 1 e.g. 'od 50 PLN', '200 PLN/h' — empty if not shown",
+  "SERVICE_2_PRICE": "price for service 2 or empty",
+  "SERVICE_3_PRICE": "price for service 3 or empty",
+  "PROCESS_TITLE": "title for 'how I work' section e.g. '5 etapów ostrzenia noży' — empty if no process described",
+  "PROCESS_STEPS": "numbered work steps, one per line e.g. '1. Ocena stanu\n2. Ostrzenie\n3. Polerowanie' — empty if not found",
+  "PERSONAL_QUOTE": "personal quote or motto found verbatim on the site — empty if none",
+  "QUOTE_AUTHOR": "attribution for the quote e.g. 'Abraham Lincoln' — empty if none",
   "CTA_PRIMARY": "Zadzwoń",
   "CTA_SECONDARY": "Zobacz ofertę",
   "LINKEDIN_URL": "",
@@ -185,26 +296,204 @@ For _confidence (0–100): estimate how much usable business content was in the 
 - 50–79: partial content, key fields present but gaps exist — review before sending
 - 0–49: thin content (JS shell, Wix placeholder, almost no text) — manual enrichment needed
 
-Return ONLY the JSON object. No explanation. No markdown fences.`;
+Return ONLY the JSON object. No explanation. No markdown fences.
+IMPORTANT: Output valid JSON. For multi-line values (e.g. PROCESS_STEPS), use \\n escape sequences — never literal newlines inside string values.`;
 
-async function extractData(html) {
-  console.log(`\n[2/5] Calling Claude API to extract business data...`);
+function parseExtractionResponse(text) {
+  const clean = text.trim().replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+  let data;
+  try {
+    data = JSON.parse(clean);
+  } catch {
+    // Sanitize literal newlines inside JSON string values and retry
+    const sanitized = clean.replace(/"(?:[^"\\]|\\.)*"/g, m =>
+      m.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t")
+    );
+    data = JSON.parse(sanitized);
+  }
+  const issues = data._issues || [];
+  const confidence = data._confidence || 0;
+  delete data._issues;
+  delete data._confidence;
+  return { data, issues, confidence };
+}
 
+function logExtractionResult(data, issues, confidence, provider) {
+  const filled = Object.values(data).filter(Boolean).length;
+  console.log(`      Provider:   ${provider}`);
+  console.log(`      Extracted:  ${filled}/34 fields filled`);
+  console.log(`      Confidence: ${confidence}/100 ${confidence >= 80 ? "✓ send" : confidence >= 50 ? "⚠ review first" : "✗ manual enrichment needed"}`);
+  if (issues.length) console.log(`      Issues found: ${issues.length}`);
+}
+
+const CATEGORY_PROMPTS = {
+  rzemiosło: {
+    label: "Rzemiosło / Usługi techniczne",
+    title: "Use craft/trade titles: 'Mistrz X', 'Rzemieślnik X', 'Stolarz', 'Elektryk', 'Ostrzyciel noży'. NEVER use 'Doradca' for a tradesperson.",
+    tagline: "Focus on craft quality, precision, durability, years of practice. Concrete outcome: 'Nóż ostry jak brzytwa w 30 minut'.",
+    bio: "Emphasize hands-on skill, years in the trade, what makes their craft different. Avoid corporate language.",
+  },
+  usługi: {
+    label: "Usługi profesjonalne",
+    title: "Use professional titles: 'Doradca kredytowy', 'Radca prawny', 'Konsultant IT', 'Agent ubezpieczeniowy'.",
+    tagline: "Focus on results, money saved, risk avoided, time saved. Concrete outcome: 'Kredyt w 2 tygodnie. Bez papierologii.'",
+    bio: "Emphasize expertise, certifications, types of clients helped, measurable results.",
+  },
+  uroda: {
+    label: "Uroda / Wellness",
+    title: "Use beauty titles: 'Stylistka', 'Kosmetolog', 'Fryzjer', 'Wizażystka', 'Masażysta'.",
+    tagline: "Focus on transformation, confidence, feeling great. Concrete: 'Włosy które robią wrażenie — Kraków'.",
+    bio: "Warm, personal tone. Mention specialization, target client, signature technique.",
+  },
+  gastronomia: {
+    label: "Gastronomia",
+    title: "Use F&B titles: 'Szef kuchni', 'Właściciel restauracji', 'Barista', 'Cukiernik'.",
+    tagline: "Focus on taste, experience, atmosphere. Concrete: 'Domowa kuchnia. Krakowskie smaki. Bez kompromisów.'",
+    bio: "Story-driven. Where they learned, what cuisine, who it's for.",
+  },
+  handel: {
+    label: "Handel / E-commerce",
+    title: "Use retail titles: 'Właściciel sklepu X', 'Sprzedawca X', 'Dystrybutor X'.",
+    tagline: "Focus on product quality, selection, value, fast delivery.",
+    bio: "What they sell, who they sell to, what makes their offer better than Amazon.",
+  },
+};
+
+const TONE_PROMPTS = {
+  casual: {
+    label: "Casual",
+    greeting: (first) => `Hej ${first},`,
+    opener: (n) => `zerknąłem na Twoją stronę i znalazłem ${n} ${n === 1 ? "rzecz" : "rzeczy"} które tracą klientów:`,
+    followup: (first, issue, url) =>
+      `Hej ${first},\n\npisałem kilka dni temu o ${issue}.\nPrzygotowałem wstępny projekt:\n\n👉 ${url}\n\n30 sekund żeby rzucić okiem.\nJeśli coś Cię zainteresuje — zadzwoń: [Twój numer]\n\n[Twoje imię]`,
+    emailGuidance: "Match the owner's casual, direct tone. Use 'Ty' form. Short sentences. No corporate language.",
+  },
+  warm: {
+    label: "Warm / przyjazny",
+    greeting: (first) => `Dzień dobry ${first},`,
+    opener: (n) => `przejrzałem stronę i znalazłem ${n} ${n === 1 ? "rzecz" : "rzeczy"} które tracą klientów:`,
+    followup: (first, issue, url) =>
+      `Dzień dobry ${first},\n\npisałem kilka dni temu o ${issue}.\nW międzyczasie przygotowałem wstępny projekt:\n\n👉 ${url}\n\nZajmuje 30 sekund żeby rzucić okiem.\nJeśli coś zainteresuje — zadzwoń: [Twój numer]\n\n[Twoje imię]`,
+    emailGuidance: "Friendly but professional. Use 'Ty' form. Warm, approachable tone.",
+  },
+  formal: {
+    label: "Formalny",
+    greeting: (first) => `Dzień dobry,`,
+    opener: (n) => `przejrzałem Państwa stronę i zidentyfikowałem ${n} ${n === 1 ? "obszar wymagający" : "obszary wymagające"} poprawy:`,
+    followup: (first, issue, url) =>
+      `Dzień dobry,\n\nkilka dni temu pisałem o ${issue}.\nPrzygotowałem wstępny projekt strony:\n\n👉 ${url}\n\nZapraszam do zapoznania się.\nW razie pytań — proszę o kontakt: [Twój numer]\n\n[Twoje imię]`,
+    emailGuidance: "Professional and respectful. Use 'Pan/Pani' or impersonal form. Full sentences.",
+  },
+};
+
+const CLASSIFY_PROMPT = `Analyze this Polish business website text and return a JSON object with two fields.
+
+category — one of:
+- rzemiosło (craftsmen, tradespeople: knife sharpener, plumber, carpenter, electrician, tailor, mechanic, welder)
+- usługi (professional services: financial advisor, lawyer, accountant, consultant, insurance, IT, real estate)
+- uroda (beauty/wellness: hairdresser, cosmetologist, massage, nail salon, spa, tattoo)
+- gastronomia (food & beverage: restaurant, café, bakery, catering, bar, food truck)
+- handel (retail: shop, e-commerce, products, wholesale, distributor)
+
+tone — one of:
+- casual (uses "Hej", "Cześć", short informal sentences, first-name style, emoji)
+- warm (friendly but professional, standard Polish business tone, "Dzień dobry")
+- formal (uses "Szanowni Państwo", "uprzejmie informujemy", long formal sentences, "Pan/Pani")
+
+Reply with ONLY valid JSON, e.g.: {"category":"rzemiosło","tone":"casual"}
+
+Business text:
+`;
+
+async function classifyBusiness(text) {
+  if (!GROQ_API_KEY) return { category: null, tone: null };
+  try {
+    const res = await apiPost(
+      "https://api.groq.com/openai/v1/chat/completions",
+      { Authorization: `Bearer ${GROQ_API_KEY}` },
+      {
+        model: "llama-3.1-8b-instant",
+        max_tokens: 20,
+        temperature: 0,
+        messages: [{ role: "user", content: CLASSIFY_PROMPT + text.slice(0, 1000) }],
+      }
+    );
+    if (res.status !== 200) return { category: null, tone: null };
+    const parsed = JSON.parse(res.body);
+    const raw = (parsed.choices?.[0]?.message?.content || "").trim();
+    const obj = JSON.parse(raw);
+    const category = Object.keys(CATEGORY_PROMPTS).includes(obj.category) ? obj.category : null;
+    const tone = Object.keys(TONE_PROMPTS).includes(obj.tone) ? obj.tone : "warm";
+    return { category, tone };
+  } catch {
+    return { category: null, tone: "warm" };
+  }
+}
+
+function buildPromptContent(html, pre, category, tone) {
+  const hints = [];
+  if (pre.PHONE) hints.push(`PHONE: "${pre.PHONE}" (confirmed via regex — use as-is)`);
+  if (pre.EMAIL) hints.push(`EMAIL: "${pre.EMAIL}" (confirmed via regex — use as-is)`);
+  if (pre._title) hints.push(`Page title: "${pre._title}"`);
+  if (pre._ogTitle) hints.push(`OG title: "${pre._ogTitle}"`);
+  if (pre._h1) hints.push(`H1: "${pre._h1}"`);
+  if (pre._nip) hints.push(`NIP: ${pre._nip} (use to identify the correct legal business name)`);
+
+  const hintBlock = hints.length
+    ? `\nPRE-EXTRACTED DATA (confirmed — embed directly into output JSON):\n${hints.join("\n")}\n`
+    : "";
+
+  const cat = category && CATEGORY_PROMPTS[category];
+  const categoryBlock = cat
+    ? `\nBUSINESS CATEGORY: ${cat.label}
+- TITLE guidance: ${cat.title}
+- TAGLINE guidance: ${cat.tagline}
+- BIO guidance: ${cat.bio}\n`
+    : "";
+
+  const ton = tone && TONE_PROMPTS[tone];
+  const toneBlock = ton
+    ? `\nCOMMUNICATION TONE: ${ton.label} — ${ton.emailGuidance}\n`
+    : "";
+
+  return `${EXTRACTION_PROMPT}${categoryBlock}${toneBlock}${hintBlock}\n\nWebsite text content to analyze:\n${html}`;
+}
+
+async function extractWithGroq(html, pre, category, tone) {
+  const res = await apiPost(
+    "https://api.groq.com/openai/v1/chat/completions",
+    { Authorization: `Bearer ${GROQ_API_KEY}` },
+    {
+      model: "llama-3.1-8b-instant",
+      max_tokens: 1500,
+      temperature: 0.2,
+      messages: [{ role: "user", content: buildPromptContent(html, pre, category, tone) }],
+    }
+  );
+
+  if (res.status !== 200) {
+    throw new Error(`Groq API error: HTTP ${res.status}\n${res.body}`);
+  }
+
+  const parsed = JSON.parse(res.body);
+  const text = parsed.choices?.[0]?.message?.content;
+  if (!text) throw new Error("Groq returned empty response");
+  if (parsed.usage) {
+    const u = parsed.usage;
+    console.log(`      Tokens:     ${u.prompt_tokens} in + ${u.completion_tokens} out = ${u.total_tokens} total`);
+  }
+
+  return parseExtractionResponse(text);
+}
+
+async function extractWithClaude(html, pre, category, tone) {
   const res = await apiPost(
     "https://api.anthropic.com/v1/messages",
-    {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
+    { "x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
     {
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1500,
-      messages: [
-        {
-          role: "user",
-          content: `${EXTRACTION_PROMPT}\n\nHTML to analyze:\n${html}`,
-        },
-      ],
+      messages: [{ role: "user", content: buildPromptContent(html, pre, category, tone) }],
     }
   );
 
@@ -213,21 +502,72 @@ async function extractData(html) {
   }
 
   const parsed = JSON.parse(res.body);
-  const text = parsed.content[0].text.trim();
+  const text = parsed.content[0].text;
+  if (!text) throw new Error("Claude returned empty response");
 
-  // Strip markdown fences if Claude added them anyway
-  const clean = text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-  const data = JSON.parse(clean);
+  return parseExtractionResponse(text);
+}
 
-  const issues = data._issues || [];
-  const confidence = data._confidence || 0;
-  delete data._issues;
-  delete data._confidence;
+async function extractData(sliced, pre) {
+  console.log(`\n[2/5] Extracting business data...`);
 
-  const filled = Object.values(data).filter(Boolean).length;
-  console.log(`      Extracted: ${filled}/34 fields filled`);
-  console.log(`      Confidence: ${confidence}/100 ${confidence >= 80 ? "✓ send" : confidence >= 50 ? "⚠ review first" : "✗ manual enrichment needed"}`);
-  if (issues.length) console.log(`      Issues found: ${issues.length}`);
+  const { category, tone } = await classifyBusiness(sliced);
+  if (category) {
+    console.log(`      Category:   ${category} (${CATEGORY_PROMPTS[category].label})`);
+  } else {
+    console.log(`      Category:   unknown — using generic prompt`);
+  }
+  console.log(`      Tone:       ${tone} (${TONE_PROMPTS[tone].label})`);
+  // Brief pause so classify + extract don't collide in the same TPM window
+  await new Promise(r => setTimeout(r, 6000));
+
+  let result;
+
+  if (GROQ_API_KEY) {
+    try {
+      result = await extractWithGroq(sliced, pre, category, tone);
+      logExtractionResult(result.data, result.issues, result.confidence, "Groq llama-3.1-8b");
+    } catch (err) {
+      if (ANTHROPIC_API_KEY) {
+        console.warn(`      Groq failed (${err.message}) — falling back to Claude...`);
+        result = await extractWithClaude(sliced, pre, category, tone);
+        logExtractionResult(result.data, result.issues, result.confidence, "Claude Haiku (fallback)");
+      } else {
+        throw err;
+      }
+    }
+  } else {
+    result = await extractWithClaude(sliced, pre, category, tone);
+    logExtractionResult(result.data, result.issues, result.confidence, "Claude Haiku");
+  }
+
+  let { data, issues, confidence } = result;
+
+  // Pre-extracted values override LLM for contact fields (regex is more reliable)
+  if (pre.PHONE) data.PHONE = pre.PHONE;
+  if (pre.EMAIL) data.EMAIL = pre.EMAIL;
+
+  // Filter out LLM-hallucinated contact issues when we already found PHONE + EMAIL
+  if (pre.PHONE && pre.EMAIL) {
+    issues = issues.filter(i => !/kontakt|telefon|email|adres.*email/i.test(i));
+  }
+
+  // Name fallback: if LLM returned a domain slug (no space, or looks like CamelCase slug),
+  // try to derive from email local part — e.g. bogdan.pusz@gmail.com → "Bogdan Pusz"
+  const name = data.FULL_NAME || "";
+  const looksLikeSlug = !name.includes(" ") || /^[A-Z][a-z]+[A-Z]/.test(name);
+  if (looksLikeSlug && pre.EMAIL) {
+    const local = pre.EMAIL.split("@")[0];
+    const genericPrefixes = /^(info|kontakt|contact|biuro|office|hello|admin|noreply|support)$/i;
+    if (!genericPrefixes.test(local) && /[._]/.test(local)) {
+      const parts = local.split(/[._]/).filter(p => p.length > 1);
+      if (parts.length >= 2) {
+        const derived = parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+        data.FULL_NAME = derived;
+        console.log(`      Name fix:   "${name}" → "${derived}" (from email)`);
+      }
+    }
+  }
 
   if (confidence < 50) {
     throw new Error(
@@ -236,7 +576,7 @@ async function extractData(html) {
     );
   }
 
-  return { data, issues, confidence };
+  return { data, issues, confidence, tone };
 }
 
 // ── Step 3: Fill template ─────────────────────────────────────────────────────
@@ -327,50 +667,40 @@ async function deployToNetlify(htmlContent, businessName) {
 
 // ── Step 5: Print results ─────────────────────────────────────────────────────
 
-function printColdEmail(data, issues, confidence, previewUrl) {
+function printColdEmail(data, issues, confidence, previewUrl, tone) {
   const name = data.FULL_NAME || "Właściciel";
   const firstName = name.split(" ")[0];
   const issueLines = issues.length
     ? issues.map((i) => `• ${i}`).join("\n")
     : "• Strona wymaga odświeżenia i optymalizacji";
-  const firstIssue = issues[0] || "wygląd strony";
+  const firstIssue = (issues[0] || "wygląd strony").toLowerCase();
+  const t = TONE_PROMPTS[tone] || TONE_PROMPTS.warm;
+  const filled = Object.values(data).filter(Boolean).length;
+  const issueCount = issues.length || 1;
+  const dataLine = `System zebrał już ${filled}/34 danych z Twojej strony — resztę uzupełniamy razem.`;
+
+  const body1 = `${t.greeting(firstName)}\n\n${t.opener(issueCount)}\n${issueLines}\n\n${dataLine}\nChcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [Twój numer]\n\n[Twoje imię]`;
+  const body2 = t.followup(firstName, firstIssue, previewUrl);
 
   console.log(`
 ═══════════════════════════════════════════════════════
 PREVIEW URL:   ${previewUrl}
 CONFIDENCE:    ${confidence}/100 ${confidence >= 80 ? "✓ ready to send" : "⚠ review before sending"}
+TONE:          ${t.label}
 ═══════════════════════════════════════════════════════
 
 STEP 1 — Send this now (issues hook, no demo link yet):
 ─────────────────────────────────────────────────────
-Temat: ${name} — znaleźliśmy 3 rzeczy do poprawy
+Temat: ${name} — znaleźliśmy ${issues.length || 1} ${issues.length === 1 ? "rzecz" : issues.length >= 2 && issues.length <= 4 ? "rzeczy" : "rzeczy"} do poprawy
 
-Dzień dobry ${firstName},
-
-przejrzałem stronę i znalazłem 3 rzeczy które tracą klientów:
-${issueLines}
-
-Każdą z nich możemy naprawić.
-Chcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [Twój numer]
-
-[Twoje imię]
+${body1}
 ─────────────────────────────────────────────────────
 
 STEP 2 — Send after 3 days if no reply (demo reveal):
 ─────────────────────────────────────────────────────
 Temat: ${name} — przygotowałem podgląd
 
-Dzień dobry ${firstName},
-
-pisałem kilka dni temu o ${firstIssue.toLowerCase()}.
-W międzyczasie przygotowałem wstępny projekt:
-
-👉 ${previewUrl}
-
-Zajmuje 30 sekund żeby rzucić okiem.
-Jeśli coś zainteresuje — zadzwoń: [Twój numer]
-
-[Twoje imię]
+${body2}
 ─────────────────────────────────────────────────────
 `);
 }
@@ -388,19 +718,25 @@ function fmtBody(text) {
     .replace(/(\[.+?\])/g, '<span class="ph">$1</span>');
 }
 
-function writeEmailPreview(data, issues, confidence, previewUrl) {
+function writeEmailPreview(data, issues, confidence, previewUrl, tone) {
   const name = data.FULL_NAME || "Właściciel";
   const firstName = name.split(" ")[0];
   const issueLines = issues.length
     ? issues.map((i) => `• ${i}`).join("\n")
     : "• Strona wymaga odświeżenia i optymalizacji";
   const firstIssue = (issues[0] || "wygląd strony").toLowerCase();
+  const t = TONE_PROMPTS[tone] || TONE_PROMPTS.warm;
+  const filled = Object.values(data).filter(Boolean).length;
+  const total = 34;
+  const dataLine = `System zebrał już ${filled}/${total} danych z Twojej strony — resztę uzupełniamy razem.`;
 
-  const subj1 = `${name} — znaleźliśmy 3 rzeczy do poprawy`;
-  const body1 = `Dzień dobry ${firstName},\n\nprzejrzałem stronę i znalazłem 3 rzeczy które tracą klientów:\n${issueLines}\n\nKażdą z nich możemy naprawić.\nChcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [Twój numer]\n\n[Twoje imię]`;
+  const issueCount = issues.length || 1;
+  const issueWord = issueCount === 1 ? "rzecz" : "rzeczy";
+  const subj1 = `${name} — znaleźliśmy ${issueCount} ${issueWord} do poprawy`;
+  const body1 = `${t.greeting(firstName)}\n\n${t.opener(issueCount)}\n${issueLines}\n\n${dataLine}\nChcesz zobaczyć jak to mogłoby wyglądać? Odpisz lub zadzwoń: [Twój numer]\n\n[Twoje imię]`;
 
   const subj2 = `${name} — przygotowałem podgląd`;
-  const body2 = `Dzień dobry ${firstName},\n\npisałem kilka dni temu o ${firstIssue}.\nW międzyczasie przygotowałem wstępny projekt:\n\n👉 ${previewUrl}\n\nZajmuje 30 sekund żeby rzucić okiem.\nJeśli coś zainteresuje — zadzwoń: [Twój numer]\n\n[Twoje imię]`;
+  const body2 = t.followup(firstName, firstIssue, previewUrl);
 
   const badge = confidence >= 80
     ? `<span class="badge high">✓ ${confidence}/100 — ready to send</span>`
@@ -509,17 +845,31 @@ async function main() {
   }
   const templateHtml = fs.readFileSync(TEMPLATE_PATH, "utf8");
 
-  const html = await fetchSite(targetUrl);
-  const { data, issues, confidence } = await extractData(html);
+  const { sliced, pre } = await fetchSite(targetUrl);
+  const { data, issues, confidence, tone } = await extractData(sliced, pre);
 
   console.log(`\n[3/5] Filling template...`);
   const filled = fillTemplate(templateHtml, data);
   console.log(`      Done — ${filled.length} bytes`);
 
-  const previewUrl = await deployToNetlify(filled, data.FULL_NAME || data.TITLE);
+  // Save filled HTML locally regardless of deploy mode
+  const localSitePath = path.join(__dirname, "last-site-preview.html");
+  fs.writeFileSync(localSitePath, filled, "utf8");
 
-  printColdEmail(data, issues, confidence, previewUrl);
-  writeEmailPreview(data, issues, confidence, previewUrl);
+  let previewUrl;
+  if (DEPLOY) {
+    console.log(`\n[4/5] Deploying to Netlify...`);
+    previewUrl = await deployToNetlify(filled, data.FULL_NAME || data.TITLE);
+  } else {
+    const localUrl = `file:///${localSitePath.replace(/\\/g, "/")}`;
+    previewUrl = localUrl;
+    console.log(`\n[4/5] Skipping Netlify (no --deploy flag)`);
+    console.log(`      Site preview: ${localUrl}`);
+    console.log(`      Run with --deploy when ready to share`);
+  }
+
+  printColdEmail(data, issues, confidence, previewUrl, tone);
+  writeEmailPreview(data, issues, confidence, previewUrl, tone);
 }
 
 main().catch((err) => {

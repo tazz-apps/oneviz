@@ -1,7 +1,7 @@
 # OneViz — TODO & Backlog
 
 *Single source of truth for everything pending. Update after each session.*
-*Last updated: 2026-04-09*
+*Last updated: 2026-04-10*
 
 ---
 
@@ -30,6 +30,17 @@ These block the first sale. Do before sending any cold outreach.
 - [ ] **Slug convention** — apply `{surname}-{industry}-{city}` naming to every new Netlify deploy going forward
 - [ ] **"Zostało 5 miejsc"** — static text in Program Pilotażowy section. Update manually in `website/index.html` after each pilot client signs
 - [ ] **Scraper validation** — test `scraper/scrape.js` on 3 real Polish business sites: one WordPress, one Wix, one static. Note which types extract well. Don't send cold outreach until validated
+
+  **Test 1 — panminaostrzy.pl (2026-04-10) — ✅ resolved**
+  - v1: 16/34 fields, confidence 50/100, name "Bogdan Adm PMN", wrong phone "280-746548"
+  - v2 (current): 23–32/34 fields, confidence 80/100, name "Bogdan Pusz" (email fallback), phone "791 382 022" (aria-label)
+  - Fixes applied: htmlToText, category detection (rzemiosło), tone detection (casual), phone priority chain, name-from-email fallback, issues filter
+  - Still missing on site: prices, business hours, address — correct issues in email
+  - Verdict: ✅ sendable — email output is clean, issues are real
+
+  **Still needed:**
+  - WordPress site test (Test 2)
+  - Static site test (Test 3)
 - [ ] **Price ladder** — update website pricing after pilot slots fill: 1–5 → 499 PLN, 6–10 → 790 PLN, 11–20 → 990 PLN, 21+ → 1,490 PLN. Never lower, only raise
 
 ---
@@ -38,6 +49,7 @@ These block the first sale. Do before sending any cold outreach.
 
 - [ ] **Google Places API pre-fill** — client types business name → auto-fills phone, address, category, reviews. Add to onboarding form as optional step. ~1 day effort. Requires Google API key (free tier)
 - [ ] **Make/Zapier notifications** — form submitted → you get notified + Airtable row created. Start with notifications only, not full automation. ~2h with Make free tier
+- [ ] **Scraper: `--ngrok` flag** — spin up local file server + ngrok tunnel → shareable URL for cold outreach without spending Netlify credits. Three-stage model: no flag = local review, `--ngrok` = cold email (free), `--deploy` = committed client (Netlify, permanent)
 - [ ] **Scraper: add `--slug` flag** — pass client slug via CLI so `deployToNetlify()` uses it instead of auto-generated name. Keeps Netlify site names consistent with convention
 - [ ] **Resend.com email account** — set up for Phase 2 automated drip. Free tier: 100 emails/day. Needed when lead volume > 5/week
 
@@ -45,7 +57,7 @@ These block the first sale. Do before sending any cold outreach.
 
 ## 🔵 Level 4 Backlog (5–20 clients)
 
-- [ ] **`generate.js` — AI content from Tally form** — takes Tally CSV/JSON → calls Claude API → outputs filled `{{VARIABLES}}` JSON. Cuts delivery from 3–5h to 20 min review. Test on Natalia's data first
+- [ ] **`generate.js` — AI content from Tally form** — takes Tally CSV/JSON → calls LLM (Groq primary, Claude fallback — same pattern as scrape.js) → outputs filled `{{VARIABLES}}` JSON. Cuts delivery from 3–5h to 20 min review. Test on Natalia's data first. Input: brief answers (~1,500 tokens in). Output: all 34 fields generated, not extracted. Quality depends on how much detail client provides in form.
 - [ ] **SEO automation** — Claude generates title tag, meta description, OG tags, FAQ schema from service descriptions. Add to delivery checklist
 - [ ] **Maintenance subscription workflow** — set up recurring payment link (Stripe or Fakturownia auto-invoice). Build client list with subscription status
 - [ ] **Phase 2 lead pipeline** — waiter-cook async architecture: Netlify Function → Airtable → OpenClaw → Resend. See ROADMAP.md Level 3.5 for full spec
@@ -129,3 +141,4 @@ Pull live Google rating (⭐ 4.8 · 127 opinii) via Places API and display as tr
 - [x] FAQ accordion (5 questions)
 - [x] Program Pilotażowy pricing card
 - [x] Sample email section with animated issues
+- [x] Scraper LLM: switched to Groq (llama-3.1-8b, free tier) as primary, Claude as fallback. Gemini blocked in Poland/EU (free tier limit=0 on all models — confirmed 2026-04-10)
