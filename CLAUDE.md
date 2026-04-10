@@ -36,7 +36,7 @@ Stack: pure static HTML templates + Netlify hosting + Groq/Claude LLM for conten
 
 ## Infrastructure dependencies
 
-OneViz Phase 2 (automated lead pipeline) depends on homelab infrastructure. See `~/Documents/ai-vault/CONTEXT.md` for full spec.
+OneViz Phase 2 (automated lead pipeline) depends on homelab infrastructure. See `~/Documents/dev/ai-vault/CONTEXT.md` for full spec.
 
 | Dependency | What it does in oneviz | Where it lives |
 |---|---|---|
