@@ -1,7 +1,7 @@
 # OneViz — TODO & Backlog
 
 *Single source of truth for everything pending. Update after each session.*
-*Last updated: 2026-04-10*
+*Last updated: 2026-05-08 (session 8)*
 
 ---
 
@@ -9,25 +9,44 @@
 
 These block the first sale. Do before sending any cold outreach.
 
+- [ ] **Google Cloud — Places API key** — create project, enable "Places API (New)", create API key restricted to Places API, add to `scraper/.env` as `GOOGLE_PLACES_API_KEY`. Set budget alert (€5/month). See OPERATIONS.md → One-Time Account Setup → Google Cloud.
+- [ ] **Scout dry-run** — once API key is set: `node scraper/scout.js --city="Kraków" --category="fryzjer" --dry-run`. Verify results look like real local businesses.
+- [ ] **Scout first write** — `node scraper/scout.js --city="Kraków" --category="fryzjer"`. Inspect `scraper/leads.json`. Sanity-check 5–10 leads before using at scale.
+
 - [ ] **Domain** — register `oneviz.pl` (or alternative). Update `canonical` in `website/index.html`
 - [ ] **Contact email** — replace `kontakt@oneviz.pl` placeholder in website footer with real email
 - [ ] **Phone / WhatsApp numbers** — replace `+48000000000` in two places: sticky bar CTA + WhatsApp button (`wa.me/48000000000`). Both in `website/index.html`
-- [ ] **Netlify token** — rotate at app.netlify.com → User settings → Applications. Was briefly visible in bash_profile
+- [ ] **Netlify token** — add `nfp_...` to `scraper/.env` (NETLIFY_API_TOKEN). Only needed as fallback via `--deploy-netlify`. Low priority.
 - [ ] **Microsoft Clarity** — create free account at clarity.microsoft.com, set up project, replace `CLARITY_PROJECT_ID` placeholder in:
   - `website/index.html`
   - `templates/dark-pro/index.html`
   - `templates/light-minimal/index.html`
   - `templates/bold-color/index.html`
-- [ ] **Natalia demo URL** — replace `https://oneviz-demo-natalia.netlify.app` in `website/index.html` with real Netlify URL after deploy
+- [ ] **Natalia demo URL** — deploy Natalia demo with `--deploy` → get `*.pages.dev` URL → replace placeholder in `website/index.html`
 - [ ] **Natalia brief** — fill in real contact info, services, bio in `demo/natalia/index.html` (currently has placeholder data)
 - [ ] **Tally forms** — build Form 1 (onboarding) and Form 2 (maintenance updates) manually using spec in `tally-forms.md`
+- [ ] **Cloudinary** — create free account at cloudinary.com. Add Cloudinary URL pattern (`w_1200,h_600,c_fill,f_auto,q_auto`) to all 3 templates. Solves WhatsApp photo quality and PageSpeed permanently.
+- [x] **Image dimensions** — all image tags in 3 templates already have width, height, and correct loading attribute (eager for hero, lazy for secondary). No action needed.
+- [x] **JSON-LD LocalBusiness schema** — added to all 3 templates (name, description, phone, email, city, country). Google rich results + AI citations. 2026-04-11.
+- [ ] **Stripe** — create account, set up PLN subscription products matching package tiers. Do before client #1.
+- [ ] **Fakturownia** — create account, connect Stripe integration. Auto-generates faktura VAT on each Stripe payment. Never invoice manually.
+- [x] **Website: scope section** — "Dla kogo / Nie dla kogo" already built at `#scope`. Two-column yes/no layout.
+- [x] **Website: email FAQ entry** — "Czy będę miał firmowy adres e-mail?" already in FAQ with Gmail forwarding answer.
+- [x] **Website: booking FAQ entry** — "Co jeśli zmienię system rezerwacji?" added with TV/channel metaphor. 2026-04-14.
+- [x] **Website: AI Value section** — new section between Trust Signals and How It Works. Segment-aware value prop, comparison table, manifest quote. No technical jargon (JSON-LD/AEO removed), claims softened to "masz szansę być rekomendowany". 2026-04-14.
+- [x] **Scraper: segment-aware booking hints** — BOOKING_HINTS map added. Category-based pitch notes (uroda→Booksy, usługi→Calendly, rzemiosło→phone/WhatsApp, gastronomia→rezerwacja, handel→kontakt). Shown in console output + yellow callout box in email preview HTML. 2026-04-14.
+- [x] **Templates: booking placeholder** — commented-out block added to hero-actions in all 3 templates. Option A (button) + Option B (iframe) + ReserveAction schema note for Level 3. 2026-04-14.
+- [x] **Website: copy update** — "Zmiana w 15 minut" never existed in current website. "Wystarczy wypełnić formularz" already used throughout.
+- [x] **Maintenance scope doc** — client-facing Polish paragraph added to `packages.md` under "Maintenance Scope — Client-facing Text". Send via WhatsApp/email before site goes live.
 
 ---
 
 ## 🟡 After First Client / Ongoing Process
 
-- [ ] **Airtable CRM** — create base "OneViz Clients", one row per client: name, slug, package, domain, Netlify URL, status, launch date, maintenance Y/N
-- [ ] **Slug convention** — apply `{surname}-{industry}-{city}` naming to every new Netlify deploy going forward
+- [ ] **Full website copy review session** — dedicated session to read the site top-to-bottom as a prospect would. Check: tone consistency across all sections, no outdated claims, new AI Value section fits the flow, table claims hold up, manifest lands right, EN translations are natural (not literal). Compare against competitor sites (home.pl, brizy, webwave) for positioning gaps. Bring specific copy lines you want to revisit or cut.
+
+- [ ] **Airtable CRM** — create base "OneViz Clients", one row per client: name, slug, package, domain, Cloudflare Pages URL, status, launch date, maintenance Y/N
+- [ ] **Slug convention** — apply `{surname}-{industry}-{city}` naming to every new Cloudflare Pages deploy going forward. Add `--slug` flag to scraper so CLI overrides auto-generated name.
 - [ ] **"Zostało 5 miejsc"** — static text in Program Pilotażowy section. Update manually in `website/index.html` after each pilot client signs
 - [ ] **Scraper validation** — test `scraper/scrape.js` on 3 real Polish business sites: one WordPress, one Wix, one static. Note which types extract well. Don't send cold outreach until validated
 
@@ -42,16 +61,25 @@ These block the first sale. Do before sending any cold outreach.
   - WordPress site test (Test 2)
   - Static site test (Test 3)
 - [ ] **Price ladder** — update website pricing after pilot slots fill: 1–5 → 499 PLN, 6–10 → 790 PLN, 11–20 → 990 PLN, 21+ → 1,490 PLN. Never lower, only raise
+- [ ] **UptimeRobot monitoring** — add each client site URL at deploy time (free). Get notified before client does when a site goes down. One URL per client, takes 2 min.
+- [ ] **Tally → webhook → rebuild pipeline** — endpoint receives Tally submission → overwrites client variables → triggers Cloudflare Pages rebuild. Stepping stone: webhook → WhatsApp notification → you trigger rebuild manually. Full automation target: by client #3.
+- [ ] **Domain tier — document per client** — record which domain tier each client is on in Airtable CRM (no domain / DNS delegation / transfer / you registered). Communicate default (DNS delegation) clearly at onboarding.
 
 ---
 
 ## 🟢 Level 3 Backlog (after first 5 clients)
 
+- [ ] **Personality quiz → template recommendation** — 3 questions about business vibe/personality → recommend one of 3 templates. Replaces "pick a template" with "find your style." Use in onboarding call (manual first) or as a pre-scraper form step. Scraper bonus: auto-infer vibe from existing site tone → pre-select quiz answers → first cold email line: "Z analizy Twojej strony wynika, że zależy Ci na budowaniu zaufania — przygotowałem wersję w stylu profesjonalnym." See ideas section for quiz structure.
+
 - [ ] **Google Places API pre-fill** — client types business name → auto-fills phone, address, category, reviews. Add to onboarding form as optional step. ~1 day effort. Requires Google API key (free tier)
 - [ ] **Make/Zapier notifications** — form submitted → you get notified + Airtable row created. Start with notifications only, not full automation. ~2h with Make free tier
-- [ ] **Scraper: `--ngrok` flag** — spin up local file server + ngrok tunnel → shareable URL for cold outreach without spending Netlify credits. Three-stage model: no flag = local review, `--ngrok` = cold email (free), `--deploy` = committed client (Netlify, permanent)
-- [ ] **Scraper: add `--slug` flag** — pass client slug via CLI so `deployToNetlify()` uses it instead of auto-generated name. Keeps Netlify site names consistent with convention
+- [ ] **`run-queue.js`** — reads leads.json, runs scrape.js sequentially per approved lead, writes `scrapeResult` back into leads.json. Build only after reviewing first 20–50 Scout leads and confirming lead quality. Spec: `docs/PIPELINE_ROADMAP.md` V2.
+- [ ] **Scraper: `--slug` flag** — pass lead id via CLI so Cloudflare project name matches leads.json slug. Required for run-queue.js to work cleanly.
+- [ ] **Scraper: `--ngrok` flag** — spin up local file server + ngrok tunnel → shareable URL for cold outreach. Three-stage model: no flag = local review, `--ngrok` = cold email (free), `--deploy` = committed client (Cloudflare Pages, permanent, unlimited)
+- [ ] **Scraper: add `--slug` flag** — pass client slug via CLI so `deployToCloudflare()` uses it instead of auto-generated name. Keeps Cloudflare project names consistent with convention
 - [ ] **Resend.com email account** — set up for Phase 2 automated drip. Free tier: 100 emails/day. Needed when lead volume > 5/week
+- [ ] **Scraper: `--source=facebook` mode** — client pastes Facebook page text → LLM extracts structured JSON (phone, description, hours, services, reviews) → fills template. Extends scraper to businesses with no scrapeable website.
+- [ ] **Partner / referral program** — 20% commission on first payment for referring partners (accountants, local designers, IT shops). Draft one-page agreement + referral tracking (UTM link per partner). First outreach: 3 biura rachunkowe in Kraków.
 
 ---
 
@@ -60,7 +88,7 @@ These block the first sale. Do before sending any cold outreach.
 - [ ] **`generate.js` — AI content from Tally form** — takes Tally CSV/JSON → calls LLM (Groq primary, Claude fallback — same pattern as scrape.js) → outputs filled `{{VARIABLES}}` JSON. Cuts delivery from 3–5h to 20 min review. Test on Natalia's data first. Input: brief answers (~1,500 tokens in). Output: all 34 fields generated, not extracted. Quality depends on how much detail client provides in form.
 - [ ] **SEO automation** — Claude generates title tag, meta description, OG tags, FAQ schema from service descriptions. Add to delivery checklist
 - [ ] **Maintenance subscription workflow** — set up recurring payment link (Stripe or Fakturownia auto-invoice). Build client list with subscription status
-- [ ] **Phase 2 lead pipeline** — waiter-cook async architecture: Netlify Function → Airtable → OpenClaw → Resend. See ROADMAP.md Level 3.5 for full spec
+- [ ] **Phase 2 lead pipeline** — waiter-cook async architecture: Cloudflare Worker → Airtable → OpenClaw → Resend. See ROADMAP.md Level 3.5 for full spec
 - [ ] **Sticky phone CTA on client templates** — add fixed bottom bar (phone + WhatsApp) to all 3 templates for mobile. Currently only on OneViz website
 
 ---
@@ -68,6 +96,24 @@ These block the first sale. Do before sending any cold outreach.
 ## 💡 Ideas & Feature Requests
 
 *Documented for future consideration. Not committed yet.*
+
+### Personality Quiz → Template Recommendation
+**Origin:** Competitive analysis vs home.pl (2026-04-10)
+
+**What it is:** Instead of asking clients to pick a template by name, ask 3 personality questions and recommend one based on their answers. Clients know "chcę wyglądać profesjonalnie" — they don't know what "dark-pro" means.
+
+**Quiz structure (3 questions, 3 outcomes):**
+- Q1: Jak chcesz żeby klienci Cię postrzegali? → Profesjonalnie i godnie zaufania / Nowocześnie i elegancko / Energicznie i wyróżniająco
+- Q2: Twoi klienci to... → Firmy i profesjonaliści / Osoby prywatne szukające kogoś bliskiego / Każdy kto potrzebuje konkretnej roboty
+- Q3: Twój styl rozmowy z klientem... → Formalny i rzeczowy / Ciepły i osobisty / Bezpośredni bez owijania w bawełnę
+
+**Mapping:** Professional + Formal → dark-pro. Modern + Warm → light-minimal. Energetic + Direct → bold-color.
+
+**Bonus:** Scraper could auto-infer the vibe from existing site tone and pre-select answers. First line of cold email: "Z analizy Twojej strony wynika, że zależy Ci na budowaniu zaufania — przygotowałem wersję w stylu profesjonalnym."
+
+**When to build:** When adding a 4th+ template. Quiz stays 3 questions regardless of template count — just refine the mapping.
+
+---
 
 ### WordPress Conversion Add-on
 **Origin:** prospect/client asked about it directly (2026-04-09)
@@ -117,6 +163,54 @@ Pull live Google rating (⭐ 4.8 · 127 opinii) via Places API and display as tr
 
 ---
 
+### ROI Calculator (sales tool)
+**Origin:** Industry research 2026-04-10
+
+**What it is:** Simple interactive calculator on the website or in the sales conversation. "Ile klientów musi przynieść strona żeby się zwróciła?"
+
+**How it works:**
+- Input: average job value (PLN), subscription plan cost (PLN/mo)
+- Output: "Wystarczą X nowych klientów miesięcznie żeby strona się zwróciła"
+- Example: hydraulik, średnia zlecenie 300 PLN, plan 99 PLN/mo → "wystarczy 1 nowy klient na 3 miesiące"
+
+**Why it works:** Converts abstract monthly cost into concrete business math. A single new client per month more than covers the subscription. Closes price objections before they're raised.
+
+**Format options:** Embedded calculator widget on pricing section, or a simple script for the sales call ("pozwól że policzę...").
+
+---
+
+### Missed Call → Voicemail → WhatsApp Transcript
+**Origin:** Product idea 2026-04-11
+
+**What it is:** Missed call on client's phone → voicemail recorded → Whisper transcription → WhatsApp message with caller's words + number. Client knows exactly what the caller wanted before calling back.
+
+**Why it matters:** Hydraulik under a sink misses a call. Gets WhatsApp: "Nowy klient 14:23 — Jan Kowalski: 'Dzień dobry, chciałem zapytać o wymianę baterii w kuchni, proszę o oddzwonienie'". Calls back informed, within the hour. Converts missed calls into closed leads.
+
+**Tech stack:** Twilio (virtual number + voicemail recording + WhatsApp API) + OpenAI Whisper (transcription, ~$0.006/min). Total cost: ~$3–5/month per client.
+
+**Implementation path:**
+1. Client call-forwards existing number to Twilio after 4 rings (or gets a Twilio number)
+2. Twilio records voicemail → webhook fires
+3. Audio → Whisper → formatted text
+4. Twilio WhatsApp API sends transcript to client's WhatsApp
+
+**Business model:** Add-on at 79–99 PLN/month. Twilio cost ~15–20 PLN. Margin ~80%.
+
+**For OneViz itself:** Set up for your own number first (~$2/month). Prospects who call OneViz get handled the same way.
+
+**Closes the product loop:** Website generates the call. Voicemail system captures the missed ones. "Strona która dzwoni za Ciebie" becomes literally true end-to-end.
+
+**When to build:** Level 4 (5–20 clients). Validate demand first — ask pilot clients if this is a pain point.
+
+---
+
+### "Prawdziwy koszt taniej strony" — website copy / FAQ entry
+**Origin:** Industry research vs. home.pl upselling analysis 2026-04-10
+
+Home.pl's 500 PLN one-time becomes: 500 (build) + 120 (rankingCoach/SEO tool) + 18 (email) + ~150 (domain/yr) + hosting + maintenance = easily 1,000–1,500 PLN year one, then recurring costs with no support. Add to website FAQ or pricing section footnote — without naming home.pl — as "Prawdziwy koszt taniej wizytówki."
+
+---
+
 ## 📋 Completed
 
 - [x] 3 HTML templates (dark-pro, light-minimal, bold-color)
@@ -142,3 +236,7 @@ Pull live Google rating (⭐ 4.8 · 127 opinii) via Places API and display as tr
 - [x] Program Pilotażowy pricing card
 - [x] Sample email section with animated issues
 - [x] Scraper LLM: switched to Groq (llama-3.1-8b, free tier) as primary, Claude as fallback. Gemini blocked in Poland/EU (free tier limit=0 on all models — confirmed 2026-04-10)
+- [x] `scraper/scrape.js` cold email fixes: "Hej" → "Dzień dobry", removed "System zebrał X/34 danych" line, followup avoids genitive `o ${issue}` → "o problemach na Twojej stronie", "projekt" → "podgląd"
+- [x] `scraper/last-preview.html` updated to match scrape.js email changes
+- [x] `IDEAS.md` created — AI Local Concierge idea documented with full strategic analysis, stack complexity assessment, and relationship to OneViz
+- [x] Cloudflare Pages migration — `--deploy` now deploys to Cloudflare Pages (unlimited free deploys). Netlify kept as `--deploy-netlify` fallback. `.env` loader added to scraper (no manual exports needed). Confirmed working: panminaostrzy.pl deployed successfully 2026-04-11
